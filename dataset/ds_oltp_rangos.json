@@ -1,0 +1,42 @@
+{
+	"name": "ds_oltp_rangos",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_oltp_fuerzas_armadas",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "origen"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "id_rango",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "nombre",
+				"type": "nvarchar"
+			},
+			{
+				"name": "categoria",
+				"type": "nvarchar"
+			},
+			{
+				"name": "nivel_jerarquico",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "abreviatura",
+				"type": "varchar"
+			}
+		],
+		"typeProperties": {
+			"schema": "oltp",
+			"table": "tbl_rangos"
+		}
+	}
+}

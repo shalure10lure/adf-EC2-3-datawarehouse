@@ -1,0 +1,33 @@
+{
+	"name": "ds_oltp_tipos_movimiento",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_oltp_fuerzas_armadas",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "origen"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "id_tipo",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "nombre",
+				"type": "varchar"
+			},
+			{
+				"name": "descripcion",
+				"type": "nvarchar"
+			}
+		],
+		"typeProperties": {
+			"schema": "oltp",
+			"table": "tbl_tipos_movimiento"
+		}
+	}
+}

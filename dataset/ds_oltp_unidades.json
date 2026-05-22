@@ -1,0 +1,50 @@
+{
+	"name": "ds_oltp_unidades",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_oltp_fuerzas_armadas",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "origen"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "id_unidad",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "id_brigada",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "nombre",
+				"type": "nvarchar"
+			},
+			{
+				"name": "codigo",
+				"type": "varchar"
+			},
+			{
+				"name": "ciudad",
+				"type": "nvarchar"
+			},
+			{
+				"name": "departamento",
+				"type": "nvarchar"
+			},
+			{
+				"name": "tipo_cuartel",
+				"type": "varchar"
+			}
+		],
+		"typeProperties": {
+			"schema": "oltp",
+			"table": "tbl_unidades"
+		}
+	}
+}
