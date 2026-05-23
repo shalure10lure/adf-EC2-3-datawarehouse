@@ -15,8 +15,20 @@
 					"name": "source1"
 				}
 			],
-			"sinks": [],
-			"transformations": [],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "ds_silver_tbl_especialidades",
+						"type": "DatasetReference"
+					},
+					"name": "sink1"
+				}
+			],
+			"transformations": [
+				{
+					"name": "derivedColumn1"
+				}
+			],
 			"scriptLines": [
 				"source(output(",
 				"          id_especialidad as integer,",
@@ -26,7 +38,49 @@
 				"     allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     isolationLevel: 'READ_UNCOMMITTED',",
-				"     format: 'table') ~> source1"
+				"     query: 'SELECT\\n    id_especialidad,\\n\\n    TRIM(replace(nombre, \\'\\\\t\\', \\' \\')) AS nombre,\\n    TRIM(area) AS area\\n\\nFROM bronze.tbl_especialidades',",
+				"     format: 'query') ~> source1",
+				"source1 derive(nombre = initCap(     regexReplace(         trim(             regexReplace(                 replace(nombre, '\\t', ' '),                 '\\\\s+',                 ' '             )         ),         '[^a-zA-ZáéíóúÁÉÍÓÚñÑ\\\\s]',         ' '     ) ),",
+				"          area = iif(\r",
+				"    lower(trim(area)) == 'combate',\r",
+				"    'combate',\r",
+				"\r",
+				"    iif(\r",
+				"        lower(trim(area)) == 'apoyo_combate',\r",
+				"        'apoyo_combate',\r",
+				"\r",
+				"        iif(\r",
+				"            lower(trim(area)) == 'servicios',\r",
+				"            'servicios',\r",
+				"\r",
+				"            iif(\r",
+				"                lower(trim(area)) == 'tecnica',\r",
+				"                'tecnica',\r",
+				"                'sin_dato'\r",
+				"            )\r",
+				"        )\r",
+				"    )\r",
+				")) ~> derivedColumn1",
+				"derivedColumn1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          id_especialidad as integer,",
+				"          nombre as string,",
+				"          area as string",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError',",
+				"     mapColumn(",
+				"          id_especialidad,",
+				"          nombre,",
+				"          area",
+				"     )) ~> sink1"
 			]
 		}
 	}
