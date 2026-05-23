@@ -45,6 +45,9 @@
 				},
 				{
 					"name": "derivedColumn7"
+				},
+				{
+					"name": "filter1"
 				}
 			],
 			"scriptLines": [
@@ -138,7 +141,8 @@
 				"    )\r",
 				")\r",
 				") ~> derivedColumn7",
-				"derivedColumn7 sink(allowSchemaDrift: true,",
+				"derivedColumn7 filter(!isNull(salario_mensual)) ~> filter1",
+				"filter1 sink(allowSchemaDrift: true,",
 				"     validateSchema: false,",
 				"     input(",
 				"          id_efectivo as integer,",
