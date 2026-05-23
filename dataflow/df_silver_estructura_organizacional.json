@@ -1,0 +1,121 @@
+{
+	"name": "df_silver_estructura_organizacional",
+	"properties": {
+		"folder": {
+			"name": "silver"
+		},
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "ds_bronze_estructura_organizacional",
+						"type": "DatasetReference"
+					},
+					"name": "source1"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "ds_silver_tbl_estructura_organizacional",
+						"type": "DatasetReference"
+					},
+					"name": "sink1"
+				}
+			],
+			"transformations": [
+				{
+					"name": "derivedColumn1"
+				},
+				{
+					"name": "derivedColumn2"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          id_estructura as integer,",
+				"          id_padre as integer,",
+				"          nivel as string,",
+				"          nombre as string,",
+				"          sigla as string,",
+				"          tipo as string,",
+				"          cobertura_departamentos as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     query: 'SELECT\\n    id_estructura,\\n    id_padre,\\n    TRIM(nivel) AS nivel,\\n    TRIM(nombre) AS nombre,\\n    TRIM(sigla) AS sigla,\\n    TRIM(tipo) AS tipo,\\n    TRIM(cobertura_departamentos) AS cobertura_departamentos\\nFROM bronze.tbl_estructura_organizacional',",
+				"     format: 'query') ~> source1",
+				"source1 derive(nivel = case(     in(['rama','RAMA','Rama'], lower(trim(nivel))), 'Rama',     in(['division','DIVISION','División','division'], lower(trim(nivel))), 'Division',     in(['brigada','BRIGADA'], lower(trim(nivel))), 'Brigada',     initCap(trim(nivel)) )) ~> derivedColumn1",
+				"derivedColumn1 derive(sigla = iif(\r",
+				"    isNull(sigla) || trim(sigla) == '' || lower(trim(sigla)) == 'null',\r",
+				"    case(\r",
+				"        lower(trim(nombre)) == 'ejército de bolivia', 'EB',\r",
+				"        lower(trim(nombre)) == 'fuerza aérea boliviana', 'FAB',\r",
+				"        lower(trim(nombre)) == 'armada boliviana', 'AB',\r",
+				"        \r",
+				"        locate('división i', lower(trim(nombre))) > 0, 'DIVI',\r",
+				"        locate('división ii', lower(trim(nombre))) > 0, 'DIVII',\r",
+				"        locate('división iii', lower(trim(nombre))) > 0, 'DIVIII',\r",
+				"        locate('división iv', lower(trim(nombre))) > 0, 'DIVIV',\r",
+				"        locate('división v', lower(trim(nombre))) > 0, 'DIVV',\r",
+				"        \r",
+				"        locate('ala aérea i', lower(trim(nombre))) > 0, 'AAI',\r",
+				"        locate('ala aérea ii', lower(trim(nombre))) > 0, 'AAII',\r",
+				"        locate('ala aérea iii', lower(trim(nombre))) > 0, 'AAIII',\r",
+				"        locate('ala aérea iv', lower(trim(nombre))) > 0, 'AAIV',\r",
+				"        \r",
+				"        locate('distrito naval i', lower(trim(nombre))) > 0, 'DNI',\r",
+				"        locate('distrito naval ii', lower(trim(nombre))) > 0, 'DNII',\r",
+				"        locate('distrito naval iii', lower(trim(nombre))) > 0, 'DNIII',\r",
+				"        locate('distrito naval iv', lower(trim(nombre))) > 0, 'DNIV',\r",
+				"        \r",
+				"        locate('ingeniería', lower(trim(nombre))) > 0, 'BI',\r",
+				"        locate('artillería', lower(trim(nombre))) > 0, 'BA',\r",
+				"        locate('caballería', lower(trim(nombre))) > 0, 'BC',\r",
+				"        locate('logística', lower(trim(nombre))) > 0, 'BL',\r",
+				"        locate('montaña', lower(trim(nombre))) > 0, 'BM',\r",
+				"        locate('selva', lower(trim(nombre))) > 0, 'BS',\r",
+				"        locate('fuerzas especiales', lower(trim(nombre))) > 0, 'BFE',\r",
+				"        locate('colorados', lower(trim(nombre))) > 0, 'BCB',\r",
+				"        locate('bolívar', lower(trim(nombre))) > 0, 'BB',\r",
+				"        'BR'\r",
+				"    ),\r",
+				"    upper(trim(sigla))\r",
+				")\r",
+				",",
+				"          tipo = iif(     isNull(tipo)     || trim(tipo) == ''     || lower(trim(tipo)) == 'null',      'Sin Tipo',      initCap(trim(tipo)) ),",
+				"          cobertura_departamentos = iif(     isNull(cobertura_departamentos)     || trim(cobertura_departamentos) == ''     || lower(trim(cobertura_departamentos)) == 'null',      'Sin Cobertura',      initCap(trim(cobertura_departamentos)) )) ~> derivedColumn2",
+				"derivedColumn2 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          id_estructura as integer,",
+				"          id_padre as integer,",
+				"          nivel as string,",
+				"          nombre as string,",
+				"          sigla as string,",
+				"          tipo as string,",
+				"          cobertura_departamentos as string",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError',",
+				"     mapColumn(",
+				"          id_estructura,",
+				"          id_padre,",
+				"          nivel,",
+				"          nombre,",
+				"          sigla,",
+				"          tipo,",
+				"          cobertura_departamentos",
+				"     )) ~> sink1"
+			]
+		}
+	}
+}
