@@ -1,0 +1,88 @@
+{
+	"name": "df_silver_zonas",
+	"properties": {
+		"folder": {
+			"name": "silver"
+		},
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "ds_bronze_zonas",
+						"type": "DatasetReference"
+					},
+					"name": "source1"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "ds_silver_tbl_zonas",
+						"type": "DatasetReference"
+					},
+					"name": "sink1"
+				}
+			],
+			"transformations": [
+				{
+					"name": "derivedColumn1"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          id_zona as integer,",
+				"          nombre as string,",
+				"          departamento as string,",
+				"          frontera_con as string,",
+				"          tipo_terreno as string,",
+				"          altitud_msnm as integer,",
+				"          nivel_riesgo as string,",
+				"          acceso_carretero as boolean",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     query: 'SELECT \\n    id_zona,\\n    TRIM(nombre) AS nombre,\\n    TRIM(departamento) AS departamento,\\n    TRIM(frontera_con) AS frontera_con,\\n    TRIM(tipo_terreno) AS tipo_terreno,\\n    altitud_msnm,\\n    TRIM(nivel_riesgo) AS nivel_riesgo,\\n    acceso_carretero\\nFROM bronze.tbl_zonas\\nWHERE id_zona IS NOT NULL \\n  AND TRIM(nombre) != \\'\\' \\n  AND UPPER(TRIM(nombre)) != \\'NULL\\'',",
+				"     format: 'query') ~> source1",
+				"source1 derive(id_zona = toInteger(id_zona),",
+				"          nombre = initCap(trim(nombre)),",
+				"          departamento = initCap(trim(departamento)),",
+				"          frontera_con = iif(     isNull(frontera_con) || in(['null', 'n/a', '---', '', '-'], lower(trim(frontera_con))),     'Sin Frontera',     initCap(trim(frontera_con)) ),",
+				"          tipo_terreno = initCap(trim(tipo_terreno)),",
+				"          altitud_msnm = toInteger(altitud_msnm),",
+				"          nivel_riesgo = case(     lower(trim(nivel_riesgo)) == 'critico', 'Crítico',     initCap(trim(nivel_riesgo)) )) ~> derivedColumn1",
+				"derivedColumn1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          id_zona as integer,",
+				"          nombre as string,",
+				"          departamento as string,",
+				"          frontera_con as string,",
+				"          tipo_terreno as string,",
+				"          altitud_msnm as integer,",
+				"          nivel_riesgo as string,",
+				"          acceso_carretero as boolean",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError',",
+				"     mapColumn(",
+				"          id_zona,",
+				"          nombre,",
+				"          departamento,",
+				"          frontera_con,",
+				"          tipo_terreno,",
+				"          altitud_msnm,",
+				"          nivel_riesgo,",
+				"          acceso_carretero",
+				"     )) ~> sink1"
+			]
+		}
+	}
+}
