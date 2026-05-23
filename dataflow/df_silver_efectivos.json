@@ -1,0 +1,182 @@
+{
+	"name": "df_silver_efectivos",
+	"properties": {
+		"folder": {
+			"name": "silver"
+		},
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "ds_bronze_efectivos",
+						"type": "DatasetReference"
+					},
+					"name": "source1"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "ds_silver_tbl_efectivos",
+						"type": "DatasetReference"
+					},
+					"name": "sink1"
+				}
+			],
+			"transformations": [
+				{
+					"name": "derivedColumn1"
+				},
+				{
+					"name": "derivedColumn2"
+				},
+				{
+					"name": "derivedColumn3"
+				},
+				{
+					"name": "derivedColumn4"
+				},
+				{
+					"name": "derivedColumn5"
+				},
+				{
+					"name": "derivedColumn6"
+				},
+				{
+					"name": "derivedColumn7"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          id_efectivo as integer,",
+				"          id_especialidad as integer,",
+				"          id_unidad_actual as integer,",
+				"          id_rango_actual as integer,",
+				"          nombre as string,",
+				"          ci as string,",
+				"          fecha_nacimiento as string,",
+				"          genero as string,",
+				"          departamento_origen as string,",
+				"          fecha_ingreso as string,",
+				"          estado as string,",
+				"          salario_mensual as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     query: 'SELECT \\r\\n    id_efectivo,\\r\\n    id_especialidad,\\r\\n    id_unidad_actual,\\r\\n    id_rango_actual,\\r\\n\\r\\n    TRIM(nombre) AS nombre,\\r\\n    TRIM(ci) AS ci,\\r\\n    TRIM(fecha_nacimiento) AS fecha_nacimiento,\\r\\n    TRIM(genero) AS genero,\\r\\n    TRIM(departamento_origen) AS departamento_origen,\\r\\n    TRIM(fecha_ingreso) AS fecha_ingreso,\\r\\n    TRIM(estado) AS estado,\\r\\n    TRIM(salario_mensual) AS salario_mensual\\r\\nFROM bronze.tbl_efectivos',",
+				"     format: 'query') ~> source1",
+				"source1 derive(nombre = initCap(     trim(         regexReplace(             regexReplace(                 replace(nombre,'\\\\t',' '),                 '[^a-zA-ZáéíóúÁÉÍÓÚñÑ\\\\s]',                 ' '             ),             '\\\\s+',             ' '         )     ) )) ~> derivedColumn1",
+				"derivedColumn1 derive(ci = iif(     isNull(ci) ||     lower(trim(ci)) == 'sin dato' ||     lower(trim(ci)) == 'n/d' ||     lower(trim(ci)) == 'n/a' ||     lower(trim(ci)) == 'null' ||     lower(trim(ci)) == 's/d',      '000000',      regexReplace(         upper(ci),         '[^0-9]',         ''     ) )) ~> derivedColumn2",
+				"derivedColumn2 derive(fecha_nacimiento = iif(     isNull(fecha_nacimiento) ||     trim(fecha_nacimiento) == '' ||     upper(trim(fecha_nacimiento)) == 'NULL' ||     upper(trim(fecha_nacimiento)) == 'N/D' ||     upper(trim(fecha_nacimiento)) == 'SIN DATO' ||     trim(fecha_nacimiento) == '---',      toDate('1900-01-01'),      coalesce(          toDate(fecha_nacimiento, 'yyyy-MM-dd'),         toDate(fecha_nacimiento, 'dd/MM/yyyy'),         toDate(fecha_nacimiento, 'MM-dd-yyyy'),         toDate(fecha_nacimiento, 'yyyy/MM/dd'),         toDate(fecha_nacimiento, 'dd-MM-yyyy'),         toDate(fecha_nacimiento, 'yyyyMMdd')      ) ),",
+				"          fecha_ingreso = iif(     isNull(fecha_ingreso) ||     trim(fecha_ingreso) == '' ||     upper(trim(fecha_ingreso)) == 'NULL' ||     upper(trim(fecha_ingreso)) == 'N/D' ||     upper(trim(fecha_ingreso)) == 'SIN DATO' ||     upper(trim(fecha_ingreso)) == 'N/A' ||     upper(trim(fecha_ingreso)) == 'S/D' ||     trim(fecha_ingreso) == '---',      toDate('1900-01-01'),      coalesce(          toDate(fecha_ingreso, 'yyyy-MM-dd'),         toDate(fecha_ingreso, 'dd/MM/yyyy'),         toDate(fecha_ingreso, 'MM-dd-yyyy'),         toDate(fecha_ingreso, 'yyyy/MM/dd'),         toDate(fecha_ingreso, 'dd-MM-yyyy'),         toDate(fecha_ingreso, 'yyyyMMdd')      ) )) ~> derivedColumn3",
+				"derivedColumn3 derive(genero = iif(      isNull(genero) ||     trim(genero) == '' ||     upper(trim(genero)) == 'NULL' ||     upper(trim(genero)) == 'SIN DATO' ||     upper(trim(genero)) == 'N/D' ||     upper(trim(genero)) == 'S/D' ||     upper(trim(genero)) == '---' ||     trim(genero) == '-',      'SIN_DATO',      iif(          upper(trim(genero)) == 'M' ||         upper(trim(genero)) == 'H' ||         upper(trim(genero)) == 'HOMBRE' ||         upper(trim(genero)) == 'MASC' ||         upper(trim(genero)) == 'MASC.' ||         upper(trim(genero)) == 'MASCULINO',          'MASCULINO',          iif(              upper(trim(genero)) == 'F' ||             upper(trim(genero)) == 'F.' ||             upper(trim(genero)) == 'FEM' ||             upper(trim(genero)) == 'FEM.' ||             upper(trim(genero)) == 'FEMENINO' ||             upper(trim(genero)) == 'MUJER',              'FEMENINO',              'SIN_DATO'         )     ) )) ~> derivedColumn4",
+				"derivedColumn4 derive(departamento_origen = case(      in(['LP','LP.','L.P.','La Paz','LA PAZ','la paz','LaPaz','Lp','La  Paz'], departamento_origen),     'La Paz',      in(['CBBA','Cbba','Cbba.','COCHABAMBA','cochabamba','Cochabamba'], departamento_origen),     'Cochabamba',      in(['SC','SCZ','Sta Cruz','Sta. Cruz','Santa Cruz','SANTA CRUZ','santa cruz'], departamento_origen),     'Santa Cruz',      in(['Or','Or.','ORURO','Oruro','oruro'], departamento_origen),     'Oruro',      in(['Pt','Pt.','POTOSI','POTOSÍ','Potosi','Potosí','potosí'], departamento_origen),     'Potosí',      in(['Tj','Tj.','Tarija','TARIJA','tarija'], departamento_origen),     'Tarija',      in(['Bn','Bn.','Beni','BENI','beni'], departamento_origen),     'Beni',      in(['Pn','Pn.','Pando','PANDO','pando'], departamento_origen),     'Pando',      in(['Chq','Chq.','Chuquisaca','CHUQUISACA','chuquisaca','Sucre'], departamento_origen),     'Chuquisaca',      in(['-','N/D','ND','s/d','sin dato','Sin Dato','n/a'], departamento_origen),     'Sin Dato',      departamento_origen )) ~> derivedColumn5",
+				"derivedColumn5 derive(estado = case(\r",
+				"\r",
+				"    in([\r",
+				"        'activo','activo.','Activo','ACTIVO',\r",
+				"        'act','Act.','ACTV',\r",
+				"        'A',\r",
+				"        'en actividad','EN ACTIVIDAD'\r",
+				"    ], estado),\r",
+				"    'Activo',\r",
+				"\r",
+				"    in([\r",
+				"        'reserva','Reserva','RESERVA',\r",
+				"        'rsv','Rsv','Rsv.',\r",
+				"        'R',\r",
+				"        'en reserva','EN RESERVA'\r",
+				"    ], estado),\r",
+				"    'Reserva',\r",
+				"\r",
+				"    in([\r",
+				"        'baja','Baja','BAJA',\r",
+				"        'baja.',\r",
+				"        'Bja',\r",
+				"        'dado de baja','DADO DE BAJA',\r",
+				"        'B'\r",
+				"    ], estado),\r",
+				"    'Baja',\r",
+				"\r",
+				"    in([\r",
+				"        'null','NULL',\r",
+				"        'N/D','ND',\r",
+				"        's/d',\r",
+				"        'n/a'\r",
+				"    ], estado)\r",
+				"    || isNull(estado),\r",
+				"    'Sin Dato',\r",
+				"\r",
+				"    estado\r",
+				")) ~> derivedColumn6",
+				"derivedColumn6 derive(salario_mensual = \r",
+				"iif(\r",
+				"    isNull(salario_mensual) || \r",
+				"    in(['null', 'NULL', 'n/a', '---', ''], trim(salario_mensual)),\r",
+				"    toDecimal(null(), 18, 2),\r",
+				"    \r",
+				"    toDecimal(\r",
+				"        iif(\r",
+				"            /* REGLA 1: Si es un número entero puro sin puntos ni comas (Ej: 2053 o 2288) */\r",
+				"            rlike(trim(regexReplace(regexReplace(trim(salario_mensual), `^(?i)[b\\s\\.s-]*`, ''), `(?i)[b\\s\\.s-]*$`, '')), `^\\d+$`),\r",
+				"            /* Le agregamos el .00 al final */\r",
+				"            trim(regexReplace(regexReplace(trim(salario_mensual), `^(?i)[b\\s\\.s-]*`, ''), `(?i)[b\\s\\.s-]*$`, '')) + '.00',\r",
+				"            \r",
+				"            /* REGLA 2: Para los números con puntos o comas (Ej: 6.482.12 o 3,661.53) */\r",
+				"            regexReplace(\r",
+				"                /* Primero: Volvemos todas las comas en puntos */\r",
+				"                replace(trim(regexReplace(regexReplace(trim(salario_mensual), `^(?i)[b\\s\\.s-]*`, ''), `(?i)[b\\s\\.s-]*$`, '')), ',', '.'),\r",
+				"                /* Segundo: Buscamos el punto seguido de 3 dígitos (miles) y lo borramos */\r",
+				"                `\\.([0-9]{3})`,\r",
+				"                `$1`\r",
+				"            )\r",
+				"        ),\r",
+				"        18,\r",
+				"        2\r",
+				"    )\r",
+				")\r",
+				") ~> derivedColumn7",
+				"derivedColumn7 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          id_efectivo as integer,",
+				"          id_especialidad as integer,",
+				"          id_unidad_actual as integer,",
+				"          id_rango_actual as integer,",
+				"          nombre as string,",
+				"          ci as string,",
+				"          fecha_nacimiento as date,",
+				"          genero as string,",
+				"          departamento_origen as string,",
+				"          fecha_ingreso as date,",
+				"          estado as string,",
+				"          salario_mensual as decimal(18,2)",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError',",
+				"     mapColumn(",
+				"          id_efectivo,",
+				"          id_especialidad,",
+				"          id_unidad_actual,",
+				"          id_rango_actual,",
+				"          nombre,",
+				"          ci,",
+				"          fecha_nacimiento,",
+				"          genero,",
+				"          departamento_origen,",
+				"          fecha_ingreso,",
+				"          estado,",
+				"          salario_mensual",
+				"     )) ~> sink1"
+			]
+		}
+	}
+}
