@@ -1,0 +1,76 @@
+{
+	"name": "df_silver_rangos",
+	"properties": {
+		"folder": {
+			"name": "silver"
+		},
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "ds_bronze_rangos",
+						"type": "DatasetReference"
+					},
+					"name": "source1"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "ds_silver_tbl_rangos",
+						"type": "DatasetReference"
+					},
+					"name": "sink1"
+				}
+			],
+			"transformations": [
+				{
+					"name": "derivedColumn1"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          id_rango as integer,",
+				"          nombre as string,",
+				"          categoria as string,",
+				"          nivel_jerarquico as integer,",
+				"          abreviatura as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     query: 'SELECT \\n    id_rango,\\n\\n    TRIM(nombre) AS nombre,\\n    TRIM(categoria) AS categoria,\\n\\n    nivel_jerarquico,\\n\\n    TRIM(abreviatura) AS abreviatura\\n\\nFROM bronze.tbl_rangos',",
+				"     format: 'query') ~> source1",
+				"source1 derive(nombre = initCap(trim(nombre)),",
+				"          categoria = initCap(trim(categoria)),",
+				"          nivel_jerarquico = toInteger(nivel_jerarquico),",
+				"          abreviatura = initCap(trim(abreviatura))) ~> derivedColumn1",
+				"derivedColumn1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          id_rango as integer,",
+				"          nombre as string,",
+				"          categoria as string,",
+				"          nivel_jerarquico as integer,",
+				"          abreviatura as string",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError',",
+				"     mapColumn(",
+				"          id_rango,",
+				"          nombre,",
+				"          categoria,",
+				"          nivel_jerarquico,",
+				"          abreviatura",
+				"     )) ~> sink1"
+			]
+		}
+	}
+}

@@ -1,0 +1,69 @@
+{
+	"name": "df_silver_tipos_operacion",
+	"properties": {
+		"folder": {
+			"name": "silver"
+		},
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "ds_bronze_tipos_operacion",
+						"type": "DatasetReference"
+					},
+					"name": "source1"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "ds_silver_tbl_tipos_operacion",
+						"type": "DatasetReference"
+					},
+					"name": "sink1"
+				}
+			],
+			"transformations": [
+				{
+					"name": "derivedColumn1"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          id_tipo as integer,",
+				"          nombre as string,",
+				"          categoria as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     query: 'SELECT \\n    id_tipo,\\n    TRIM(nombre) AS nombre,\\n    TRIM(categoria) AS categoria\\nFROM bronze.tbl_tipos_operacion\\nWHERE id_tipo IS NOT NULL \\n  AND TRIM(nombre) != \\'\\' \\n  AND UPPER(TRIM(nombre)) != \\'NULL\\'',",
+				"     format: 'query') ~> source1",
+				"source1 derive(id_tipo = toInteger(id_tipo),",
+				"          nombre = initCap(trim(regexReplace(trim(nombre), `^(?i)(defensa civil\\s*-\\s*)`, ''))),",
+				"          categoria = initCap(replace(trim(categoria), '_', ' '))) ~> derivedColumn1",
+				"derivedColumn1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          id_tipo as integer,",
+				"          nombre as string,",
+				"          categoria as string",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError',",
+				"     mapColumn(",
+				"          id_tipo,",
+				"          nombre,",
+				"          categoria",
+				"     )) ~> sink1"
+			]
+		}
+	}
+}

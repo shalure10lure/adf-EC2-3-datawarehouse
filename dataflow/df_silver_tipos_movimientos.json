@@ -1,0 +1,69 @@
+{
+	"name": "df_silver_tipos_movimientos",
+	"properties": {
+		"folder": {
+			"name": "silver"
+		},
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "ds_bronze_tipos_movimiento",
+						"type": "DatasetReference"
+					},
+					"name": "source1"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "ds_silver_tbl_tipos_movimiento",
+						"type": "DatasetReference"
+					},
+					"name": "sink1"
+				}
+			],
+			"transformations": [
+				{
+					"name": "derivedColumn1"
+				}
+			],
+			"scriptLines": [
+				"source(output(",
+				"          id_tipo as integer,",
+				"          nombre as string,",
+				"          descripcion as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     query: 'SELECT \\n    id_tipo,\\n    TRIM(nombre) AS nombre,\\n    TRIM(descripcion) AS descripcion\\nFROM bronze.tbl_tipos_movimiento\\nWHERE id_tipo IS NOT NULL \\n  AND TRIM(nombre) != \\'\\' \\n  AND UPPER(TRIM(nombre)) != \\'NULL\\'',",
+				"     format: 'query') ~> source1",
+				"source1 derive(nombre = initCap(trim(nombre)),",
+				"          id_tipo = toInteger(id_tipo),",
+				"          descripcion = upper(left(regexReplace(trim(descripcion), `\\s+`, ' '), 1)) +  lower(substring(regexReplace(trim(descripcion), `\\s+`, ' '), 2, length(regexReplace(trim(descripcion), `\\s+`, ' '))))) ~> derivedColumn1",
+				"derivedColumn1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          id_tipo as integer,",
+				"          nombre as string,",
+				"          descripcion as string",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError',",
+				"     mapColumn(",
+				"          id_tipo,",
+				"          nombre,",
+				"          descripcion",
+				"     )) ~> sink1"
+			]
+		}
+	}
+}
