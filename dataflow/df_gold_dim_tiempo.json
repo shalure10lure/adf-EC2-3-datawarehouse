@@ -1,0 +1,82 @@
+{
+	"name": "df_gold_dim_tiempo",
+	"properties": {
+		"folder": {
+			"name": "gold"
+		},
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "ds_silver_tbl_operaciones",
+						"type": "DatasetReference"
+					},
+					"name": "source1"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "gold_dim_tiempo",
+						"type": "DatasetReference"
+					},
+					"name": "sink1"
+				}
+			],
+			"transformations": [],
+			"scriptLines": [
+				"source(output(",
+				"          fecha_key as integer,",
+				"          fecha as date,",
+				"          dia_semana as integer,",
+				"          nombre_dia as string,",
+				"          dia_mes as integer,",
+				"          mes as integer,",
+				"          nombre_mes as string,",
+				"          trimestre as integer,",
+				"          anio as integer,",
+				"          es_fin_semana as integer",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     query: 'SELECT \\n    -- fecha_key en formato entero YYYYMMDD\\n    CAST(CONVERT(VARCHAR(8), s.fecha_base, 112) AS INT) AS fecha_key,\\n    s.fecha_base AS fecha,\\n    DATEPART(WEEKDAY, s.fecha_base) AS dia_semana,\\n    DATENAME(WEEKDAY, s.fecha_base) AS nombre_dia,\\n    DAY(s.fecha_base) AS dia_mes,\\n    MONTH(s.fecha_base) AS mes,\\n    DATENAME(MONTH, s.fecha_base) AS nombre_mes,\\n    DATEPART(QUARTER, s.fecha_base) AS trimestre,\\n    YEAR(s.fecha_base) AS anio,\\n    CASE \\n        -- DATEPART con WEEKDAY depende de la configuración del servidor, \\n        -- pero típicamente 1 (Domingo) y 7 (Sábado) o 6 y 7 son fin de semana.\\n        WHEN DATEPART(WEEKDAY, s.fecha_base) IN (6, 7) THEN 1\\n        ELSE 0\\n    END AS es_fin_semana\\nFROM (\\n    -- Unificamos todas las fechas reales que existen en tu capa Silver\\n    SELECT CAST(fecha_movimiento AS DATE) AS fecha_base\\n    FROM silver.tbl_movimientos_personal\\n    WHERE fecha_movimiento IS NOT NULL\\n\\n    UNION\\n\\n    SELECT CAST(fecha_inicio AS DATE) AS fecha_base\\n    FROM silver.tbl_operaciones\\n    WHERE fecha_inicio IS NOT NULL\\n\\n    UNION\\n\\n    SELECT CAST(fecha_fin AS DATE) AS fecha_base\\n    FROM silver.tbl_operaciones\\n    WHERE fecha_fin IS NOT NULL\\n) s',",
+				"     format: 'query') ~> source1",
+				"source1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          fecha_key as integer,",
+				"          fecha as date,",
+				"          dia_semana as integer,",
+				"          nombre_dia as string,",
+				"          dia_mes as integer,",
+				"          mes as integer,",
+				"          nombre_mes as string,",
+				"          trimestre as integer,",
+				"          anio as integer,",
+				"          es_fin_semana as boolean",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError',",
+				"     mapColumn(",
+				"          fecha_key,",
+				"          fecha,",
+				"          dia_semana,",
+				"          nombre_dia,",
+				"          dia_mes,",
+				"          mes,",
+				"          nombre_mes,",
+				"          trimestre,",
+				"          anio",
+				"     )) ~> sink1"
+			]
+		}
+	}
+}

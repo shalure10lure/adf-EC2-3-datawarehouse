@@ -1,0 +1,68 @@
+{
+	"name": "df_gold_dim_rango",
+	"properties": {
+		"folder": {
+			"name": "gold"
+		},
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "ds_silver_tbl_rangos",
+						"type": "DatasetReference"
+					},
+					"name": "source1"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "gold_dim_rango",
+						"type": "DatasetReference"
+					},
+					"name": "sink1"
+				}
+			],
+			"transformations": [],
+			"scriptLines": [
+				"source(output(",
+				"          id_rango as integer,",
+				"          nombre as string,",
+				"          categoria as string,",
+				"          nivel_jerarquico as integer,",
+				"          abreviatura as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     query: 'SELECT DISTINCT \\n    r.id_rango,\\n    r.nombre,\\n    r.categoria,\\n    r.nivel_jerarquico,\\n    r.abreviatura\\nFROM silver.tbl_rangos r\\nWHERE r.id_rango IS NOT NULL',",
+				"     format: 'query') ~> source1",
+				"source1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          rango_key as integer,",
+				"          rango_id as integer,",
+				"          nombre as string,",
+				"          categoria as string,",
+				"          nivel_jerarquico as integer,",
+				"          abreviatura as string",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError',",
+				"     mapColumn(",
+				"          nombre,",
+				"          categoria,",
+				"          nivel_jerarquico,",
+				"          abreviatura",
+				"     )) ~> sink1"
+			]
+		}
+	}
+}

@@ -1,0 +1,81 @@
+{
+	"name": "df_gold_dim_efectivo",
+	"properties": {
+		"folder": {
+			"name": "gold"
+		},
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "ds_silver_tbl_efectivos",
+						"type": "DatasetReference"
+					},
+					"name": "source1"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "gold_dim_efectivo",
+						"type": "DatasetReference"
+					},
+					"name": "sink1"
+				}
+			],
+			"transformations": [],
+			"scriptLines": [
+				"source(output(",
+				"          id_efectivo as integer,",
+				"          nombre as string,",
+				"          ci as string,",
+				"          genero as string,",
+				"          departamento_origen as string,",
+				"          fecha_nacimiento as date,",
+				"          fecha_ingreso as date,",
+				"          estado as string,",
+				"          salario_mensual as decimal(18,2)",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     query: 'SELECT DISTINCT \\n    e.id_efectivo,\\n    e.nombre,\\n    e.ci,\\n    CASE \\n        WHEN e.genero IN (\\'M\\', \\'Masculino\\') THEN \\'Masculino\\'\\n        WHEN e.genero IN (\\'F\\', \\'Femenino\\') THEN \\'Femenino\\'\\n        ELSE \\'No Especificado\\'\\n    END AS genero,\\n    e.departamento_origen,\\n    e.fecha_nacimiento,\\n    e.fecha_ingreso,\\n    e.estado,\\n    e.salario_mensual\\nFROM silver.tbl_efectivos e\\nWHERE e.id_efectivo IS NOT NULL',",
+				"     format: 'query') ~> source1",
+				"source1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          efectivo_key as integer,",
+				"          efectivo_id as integer,",
+				"          nombre as string,",
+				"          ci as string,",
+				"          genero as string,",
+				"          departamento_origen as string,",
+				"          fecha_nacimiento as date,",
+				"          fecha_ingreso as date,",
+				"          estado as string,",
+				"          salario_mensual as decimal(18,2)",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError',",
+				"     mapColumn(",
+				"          efectivo_id = id_efectivo,",
+				"          nombre,",
+				"          ci,",
+				"          genero,",
+				"          departamento_origen,",
+				"          fecha_nacimiento,",
+				"          fecha_ingreso,",
+				"          estado,",
+				"          salario_mensual",
+				"     )) ~> sink1"
+			]
+		}
+	}
+}

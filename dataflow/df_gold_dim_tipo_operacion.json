@@ -1,0 +1,63 @@
+{
+	"name": "df_gold_dim_tipo_operacion",
+	"properties": {
+		"folder": {
+			"name": "gold"
+		},
+		"type": "MappingDataFlow",
+		"typeProperties": {
+			"sources": [
+				{
+					"dataset": {
+						"referenceName": "ds_silver_tbl_tipos_operacion",
+						"type": "DatasetReference"
+					},
+					"name": "source1"
+				}
+			],
+			"sinks": [
+				{
+					"dataset": {
+						"referenceName": "gold_dim_tipo_operacion",
+						"type": "DatasetReference"
+					},
+					"name": "sink1"
+				}
+			],
+			"transformations": [],
+			"scriptLines": [
+				"source(output(",
+				"          id_tipo as integer,",
+				"          nombre as string,",
+				"          categoria as string",
+				"     ),",
+				"     allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     isolationLevel: 'READ_UNCOMMITTED',",
+				"     query: 'SELECT DISTINCT \\n    id_tipo,\\n    nombre,\\n    categoria\\nFROM silver.tbl_tipos_operacion\\nWHERE id_tipo IS NOT NULL',",
+				"     format: 'query') ~> source1",
+				"source1 sink(allowSchemaDrift: true,",
+				"     validateSchema: false,",
+				"     input(",
+				"          tipo_operacion_key as integer,",
+				"          tipo_id as integer,",
+				"          nombre as string,",
+				"          categoria as string",
+				"     ),",
+				"     deletable:false,",
+				"     insertable:true,",
+				"     updateable:false,",
+				"     upsertable:false,",
+				"     format: 'table',",
+				"     skipDuplicateMapInputs: true,",
+				"     skipDuplicateMapOutputs: true,",
+				"     errorHandlingOption: 'stopOnFirstError',",
+				"     mapColumn(",
+				"          tipo_id = id_tipo,",
+				"          nombre,",
+				"          categoria",
+				"     )) ~> sink1"
+			]
+		}
+	}
+}
