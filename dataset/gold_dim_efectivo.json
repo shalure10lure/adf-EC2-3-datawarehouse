@@ -1,0 +1,64 @@
+{
+	"name": "gold_dim_efectivo",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_dw_fuerzas_armadas",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "gold"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "efectivo_key",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "efectivo_id",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "nombre",
+				"type": "nvarchar"
+			},
+			{
+				"name": "ci",
+				"type": "varchar"
+			},
+			{
+				"name": "genero",
+				"type": "varchar"
+			},
+			{
+				"name": "departamento_origen",
+				"type": "nvarchar"
+			},
+			{
+				"name": "fecha_nacimiento",
+				"type": "date"
+			},
+			{
+				"name": "fecha_ingreso",
+				"type": "date"
+			},
+			{
+				"name": "estado",
+				"type": "varchar"
+			},
+			{
+				"name": "salario_mensual",
+				"type": "decimal",
+				"precision": 18,
+				"scale": 2
+			}
+		],
+		"typeProperties": {
+			"schema": "gold",
+			"table": "dim_efectivo"
+		}
+	}
+}

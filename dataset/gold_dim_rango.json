@@ -1,0 +1,47 @@
+{
+	"name": "gold_dim_rango",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_dw_fuerzas_armadas",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "gold"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [
+			{
+				"name": "rango_key",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "rango_id",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "nombre",
+				"type": "nvarchar"
+			},
+			{
+				"name": "categoria",
+				"type": "nvarchar"
+			},
+			{
+				"name": "nivel_jerarquico",
+				"type": "int",
+				"precision": 10
+			},
+			{
+				"name": "abreviatura",
+				"type": "varchar"
+			}
+		],
+		"typeProperties": {
+			"schema": "gold",
+			"table": "dim_rango"
+		}
+	}
+}
