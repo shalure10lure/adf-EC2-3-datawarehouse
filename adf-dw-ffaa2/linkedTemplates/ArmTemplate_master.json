@@ -1,0 +1,172 @@
+{
+	"$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"type": "string",
+			"metadata": "Nombre de instancia de Data Factory",
+			"defaultValue": "adf-dw-ffaa2"
+		},
+		"ls_datalake_ffaa_accountKey": {
+			"type": "secureString",
+			"metadata": "Cadena protegida para \"accountKey\"de \"ls_datalake_ffaa\""
+		},
+		"ls_dw_fuerzas_armadas_password": {
+			"type": "secureString",
+			"metadata": "Cadena protegida para \"password\"de \"ls_dw_fuerzas_armadas\""
+		},
+		"ls_oltp_fuerzas_armadas_password": {
+			"type": "secureString",
+			"metadata": "Cadena protegida para \"password\"de \"ls_oltp_fuerzas_armadas\""
+		},
+		"ls_datalake_ffaa_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://stadwffaa001.dfs.core.windows.net/"
+		},
+		"ls_dw_fuerzas_armadas_properties_typeProperties_server": {
+			"type": "string",
+			"defaultValue": "sql-dw-ffaa2.database.windows.net"
+		},
+		"ls_dw_fuerzas_armadas_properties_typeProperties_database": {
+			"type": "string",
+			"defaultValue": "dw_fuerzas_armadas2"
+		},
+		"ls_dw_fuerzas_armadas_properties_typeProperties_userName": {
+			"type": "string",
+			"defaultValue": "adminffaa"
+		},
+		"ls_oltp_fuerzas_armadas_properties_typeProperties_server": {
+			"type": "string",
+			"defaultValue": "server02-fuerzas-armadas-bolivia.database.windows.net"
+		},
+		"ls_oltp_fuerzas_armadas_properties_typeProperties_database": {
+			"type": "string",
+			"defaultValue": "erp-fuerzas-armadas-bolivia-2"
+		},
+		"ls_oltp_fuerzas_armadas_properties_typeProperties_userName": {
+			"type": "string",
+			"defaultValue": "userSisGer"
+		},
+		"containerUri": {
+			"type": "string",
+			"metadata": "URI de la cuenta de almacenamiento que contiene las plantillas de ARM vinculadas."
+		},
+		"containerSasToken": {
+			"type": "string",
+			"metadata": "Token de SAS para la cuenta de almacenamiento que contiene las plantillas de ARM vinculadas"
+		}
+	},
+	"variables": {
+		"factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
+	},
+	"resources": [
+		{
+			"name": "adf-dw-ffaa2_ArmTemplate_0",
+			"type": "Microsoft.Resources/deployments",
+			"apiVersion": "2024-03-01",
+			"properties": {
+				"mode": "incremental",
+				"templateLink": {
+					"uri": "[concat(parameters('containerUri'), '/ArmTemplate_0.json', parameters('containerSasToken'))]",
+					"contentVersion": "1.0.0.0"
+				},
+				"parameters": {
+					"factoryName": {
+						"value": "[parameters('factoryName')]"
+					},
+					"ls_datalake_ffaa_accountKey": {
+						"value": "[parameters('ls_datalake_ffaa_accountKey')]"
+					},
+					"ls_dw_fuerzas_armadas_password": {
+						"value": "[parameters('ls_dw_fuerzas_armadas_password')]"
+					},
+					"ls_oltp_fuerzas_armadas_password": {
+						"value": "[parameters('ls_oltp_fuerzas_armadas_password')]"
+					},
+					"ls_datalake_ffaa_properties_typeProperties_url": {
+						"value": "[parameters('ls_datalake_ffaa_properties_typeProperties_url')]"
+					},
+					"ls_dw_fuerzas_armadas_properties_typeProperties_server": {
+						"value": "[parameters('ls_dw_fuerzas_armadas_properties_typeProperties_server')]"
+					},
+					"ls_dw_fuerzas_armadas_properties_typeProperties_database": {
+						"value": "[parameters('ls_dw_fuerzas_armadas_properties_typeProperties_database')]"
+					},
+					"ls_dw_fuerzas_armadas_properties_typeProperties_userName": {
+						"value": "[parameters('ls_dw_fuerzas_armadas_properties_typeProperties_userName')]"
+					},
+					"ls_oltp_fuerzas_armadas_properties_typeProperties_server": {
+						"value": "[parameters('ls_oltp_fuerzas_armadas_properties_typeProperties_server')]"
+					},
+					"ls_oltp_fuerzas_armadas_properties_typeProperties_database": {
+						"value": "[parameters('ls_oltp_fuerzas_armadas_properties_typeProperties_database')]"
+					},
+					"ls_oltp_fuerzas_armadas_properties_typeProperties_userName": {
+						"value": "[parameters('ls_oltp_fuerzas_armadas_properties_typeProperties_userName')]"
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "adf-dw-ffaa2_ArmTemplate_1",
+			"type": "Microsoft.Resources/deployments",
+			"apiVersion": "2024-03-01",
+			"properties": {
+				"mode": "incremental",
+				"templateLink": {
+					"uri": "[concat(parameters('containerUri'), '/ArmTemplate_1.json', parameters('containerSasToken'))]",
+					"contentVersion": "1.0.0.0"
+				},
+				"parameters": {
+					"factoryName": {
+						"value": "[parameters('factoryName')]"
+					}
+				}
+			},
+			"dependsOn": [
+				"[resourceId('Microsoft.Resources/deployments', 'adf-dw-ffaa2_ArmTemplate_0')]"
+			]
+		},
+		{
+			"name": "adf-dw-ffaa2_ArmTemplate_2",
+			"type": "Microsoft.Resources/deployments",
+			"apiVersion": "2024-03-01",
+			"properties": {
+				"mode": "incremental",
+				"templateLink": {
+					"uri": "[concat(parameters('containerUri'), '/ArmTemplate_2.json', parameters('containerSasToken'))]",
+					"contentVersion": "1.0.0.0"
+				},
+				"parameters": {
+					"factoryName": {
+						"value": "[parameters('factoryName')]"
+					}
+				}
+			},
+			"dependsOn": [
+				"[resourceId('Microsoft.Resources/deployments', 'adf-dw-ffaa2_ArmTemplate_1')]"
+			]
+		},
+		{
+			"name": "adf-dw-ffaa2_ArmTemplate_3",
+			"type": "Microsoft.Resources/deployments",
+			"apiVersion": "2024-03-01",
+			"properties": {
+				"mode": "incremental",
+				"templateLink": {
+					"uri": "[concat(parameters('containerUri'), '/ArmTemplate_3.json', parameters('containerSasToken'))]",
+					"contentVersion": "1.0.0.0"
+				},
+				"parameters": {
+					"factoryName": {
+						"value": "[parameters('factoryName')]"
+					}
+				}
+			},
+			"dependsOn": [
+				"[resourceId('Microsoft.Resources/deployments', 'adf-dw-ffaa2_ArmTemplate_2')]"
+			]
+		}
+	]
+}

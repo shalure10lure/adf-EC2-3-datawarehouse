@@ -1,0 +1,2632 @@
+{
+	"$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"type": "string",
+			"metadata": "Nombre de instancia de Data Factory",
+			"defaultValue": "adf-dw-ffaa2"
+		}
+	},
+	"variables": {
+		"factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
+	},
+	"resources": [
+		{
+			"name": "[concat(parameters('factoryName'), '/gold_hechos_movimiento_personal')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ls_dw_fuerzas_armadas",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "gold"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "movimiento_key",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "fecha_key",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "efectivo_key",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "unidad_key",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "rango_key",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "tipo_movimiento_key",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "antiguedad_anios",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "salario_mensual",
+						"type": "decimal",
+						"precision": 18,
+						"scale": 2
+					},
+					{
+						"name": "cantidad_movimientos",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "observaciones",
+						"type": "nvarchar"
+					}
+				],
+				"typeProperties": {
+					"schema": "gold",
+					"table": "hechos_movimiento_personal"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/gold_hechos_operacion')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ls_dw_fuerzas_armadas",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "gold"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [
+					{
+						"name": "operacion_key",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "fecha_inicio_key",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "fecha_fin_key",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "tipo_operacion_key",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "unidad_key",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "zona_key",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "efectivos_desplegados",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "vehiculos_utilizados",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "duracion_dias",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "costo_operacion",
+						"type": "decimal",
+						"precision": 18,
+						"scale": 2
+					},
+					{
+						"name": "detenidos",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "area_km2",
+						"type": "decimal",
+						"precision": 18,
+						"scale": 2
+					},
+					{
+						"name": "incidentes",
+						"type": "int",
+						"precision": 10
+					},
+					{
+						"name": "resultado",
+						"type": "varchar"
+					},
+					{
+						"name": "observaciones",
+						"type": "nvarchar"
+					}
+				],
+				"typeProperties": {
+					"schema": "gold",
+					"table": "hechos_operacion"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/df_bronze_cargar_datos')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"folder": {
+					"name": "bronze"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "ds_oltp_efectivos",
+								"type": "DatasetReference"
+							},
+							"name": "source1"
+						},
+						{
+							"dataset": {
+								"referenceName": "ds_oltp_especialidades",
+								"type": "DatasetReference"
+							},
+							"name": "source2"
+						},
+						{
+							"dataset": {
+								"referenceName": "ds_oltp_estructura_organizacional",
+								"type": "DatasetReference"
+							},
+							"name": "source3"
+						},
+						{
+							"dataset": {
+								"referenceName": "ds_oltp_movimientos_personal",
+								"type": "DatasetReference"
+							},
+							"name": "source4"
+						},
+						{
+							"dataset": {
+								"referenceName": "ds_oltp_operaciones",
+								"type": "DatasetReference"
+							},
+							"name": "source5"
+						},
+						{
+							"dataset": {
+								"referenceName": "ds_oltp_rangos",
+								"type": "DatasetReference"
+							},
+							"name": "source6"
+						},
+						{
+							"dataset": {
+								"referenceName": "ds_oltp_tipos_movimiento",
+								"type": "DatasetReference"
+							},
+							"name": "source7"
+						},
+						{
+							"dataset": {
+								"referenceName": "ds_oltp_tipos_operacion",
+								"type": "DatasetReference"
+							},
+							"name": "source8"
+						},
+						{
+							"dataset": {
+								"referenceName": "ds_oltp_unidades",
+								"type": "DatasetReference"
+							},
+							"name": "source9"
+						},
+						{
+							"dataset": {
+								"referenceName": "ds_oltp_zonas",
+								"type": "DatasetReference"
+							},
+							"name": "source10"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "ds_bronze_efectivos",
+								"type": "DatasetReference"
+							},
+							"name": "sink1"
+						},
+						{
+							"dataset": {
+								"referenceName": "ds_bronze_especialidades",
+								"type": "DatasetReference"
+							},
+							"name": "sink2"
+						},
+						{
+							"dataset": {
+								"referenceName": "ds_bronze_estructura_organizacional",
+								"type": "DatasetReference"
+							},
+							"name": "sink3"
+						},
+						{
+							"dataset": {
+								"referenceName": "ds_bronze_movimientos_personal",
+								"type": "DatasetReference"
+							},
+							"name": "sink4"
+						},
+						{
+							"dataset": {
+								"referenceName": "ds_bronze_operaciones",
+								"type": "DatasetReference"
+							},
+							"name": "sink5"
+						},
+						{
+							"dataset": {
+								"referenceName": "ds_bronze_rangos",
+								"type": "DatasetReference"
+							},
+							"name": "sink6"
+						},
+						{
+							"dataset": {
+								"referenceName": "ds_bronze_tipos_movimiento",
+								"type": "DatasetReference"
+							},
+							"name": "sink7"
+						},
+						{
+							"dataset": {
+								"referenceName": "ds_bronze_tipos_operacion",
+								"type": "DatasetReference"
+							},
+							"name": "sink8"
+						},
+						{
+							"dataset": {
+								"referenceName": "ds_bronze_unidades",
+								"type": "DatasetReference"
+							},
+							"name": "sink9"
+						},
+						{
+							"dataset": {
+								"referenceName": "ds_bronze_zonas",
+								"type": "DatasetReference"
+							},
+							"name": "sink10"
+						}
+					],
+					"transformations": [],
+					"scriptLines": [
+						"source(output(",
+						"          id_efectivo as integer,",
+						"          id_especialidad as integer,",
+						"          id_unidad_actual as integer,",
+						"          id_rango_actual as integer,",
+						"          nombre as string,",
+						"          ci as string,",
+						"          fecha_nacimiento as string,",
+						"          genero as string,",
+						"          departamento_origen as string,",
+						"          fecha_ingreso as string,",
+						"          estado as string,",
+						"          salario_mensual as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     format: 'table') ~> source1",
+						"source(output(",
+						"          id_especialidad as integer,",
+						"          nombre as string,",
+						"          area as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     format: 'table') ~> source2",
+						"source(output(",
+						"          id_estructura as integer,",
+						"          id_padre as integer,",
+						"          nivel as string,",
+						"          nombre as string,",
+						"          sigla as string,",
+						"          tipo as string,",
+						"          cobertura_departamentos as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     format: 'table') ~> source3",
+						"source(output(",
+						"          id_movimiento as integer,",
+						"          id_efectivo as integer,",
+						"          id_unidad_destino as integer,",
+						"          id_rango as integer,",
+						"          id_tipo as integer,",
+						"          fecha_movimiento as string,",
+						"          antiguedad_anios as string,",
+						"          salario_mensual as string,",
+						"          observaciones as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     format: 'table') ~> source4",
+						"source(output(",
+						"          id_operacion as integer,",
+						"          id_tipo as integer,",
+						"          id_unidad_resp as integer,",
+						"          id_zona as integer,",
+						"          nombre_operacion as string,",
+						"          fecha_inicio as string,",
+						"          fecha_fin as string,",
+						"          efectivos_desplegados as string,",
+						"          vehiculos_utilizados as string,",
+						"          duracion_dias as string,",
+						"          costo_operacion as string,",
+						"          resultado as string,",
+						"          detenidos as string,",
+						"          area_km2 as string,",
+						"          incidentes as string,",
+						"          observaciones as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     format: 'table') ~> source5",
+						"source(output(",
+						"          id_rango as integer,",
+						"          nombre as string,",
+						"          categoria as string,",
+						"          nivel_jerarquico as integer,",
+						"          abreviatura as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     format: 'table') ~> source6",
+						"source(output(",
+						"          id_tipo as integer,",
+						"          nombre as string,",
+						"          descripcion as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     format: 'table') ~> source7",
+						"source(output(",
+						"          id_tipo as integer,",
+						"          nombre as string,",
+						"          categoria as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     format: 'table') ~> source8",
+						"source(output(",
+						"          id_unidad as integer,",
+						"          id_brigada as integer,",
+						"          nombre as string,",
+						"          codigo as string,",
+						"          ciudad as string,",
+						"          departamento as string,",
+						"          tipo_cuartel as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     format: 'table') ~> source9",
+						"source(output(",
+						"          id_zona as integer,",
+						"          nombre as string,",
+						"          departamento as string,",
+						"          frontera_con as string,",
+						"          tipo_terreno as string,",
+						"          altitud_msnm as integer,",
+						"          nivel_riesgo as string,",
+						"          acceso_carretero as boolean",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     format: 'table') ~> source10",
+						"source1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          id_efectivo as integer,",
+						"          id_especialidad as integer,",
+						"          id_unidad_actual as integer,",
+						"          id_rango_actual as integer,",
+						"          nombre as string,",
+						"          ci as string,",
+						"          fecha_nacimiento as string,",
+						"          genero as string,",
+						"          departamento_origen as string,",
+						"          fecha_ingreso as string,",
+						"          estado as string,",
+						"          salario_mensual as string",
+						"     ),",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError',",
+						"     mapColumn(",
+						"          id_efectivo,",
+						"          id_especialidad,",
+						"          id_unidad_actual,",
+						"          id_rango_actual,",
+						"          nombre,",
+						"          ci,",
+						"          fecha_nacimiento,",
+						"          genero,",
+						"          departamento_origen,",
+						"          fecha_ingreso,",
+						"          estado,",
+						"          salario_mensual",
+						"     )) ~> sink1",
+						"source2 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          id_especialidad as integer,",
+						"          nombre as string,",
+						"          area as string",
+						"     ),",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError',",
+						"     mapColumn(",
+						"          id_especialidad,",
+						"          nombre,",
+						"          area",
+						"     )) ~> sink2",
+						"source3 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          id_estructura as integer,",
+						"          id_padre as integer,",
+						"          nivel as string,",
+						"          nombre as string,",
+						"          sigla as string,",
+						"          tipo as string,",
+						"          cobertura_departamentos as string",
+						"     ),",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError',",
+						"     mapColumn(",
+						"          id_estructura,",
+						"          id_padre,",
+						"          nivel,",
+						"          nombre,",
+						"          sigla,",
+						"          tipo,",
+						"          cobertura_departamentos",
+						"     )) ~> sink3",
+						"source4 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          id_movimiento as integer,",
+						"          id_efectivo as integer,",
+						"          id_unidad_destino as integer,",
+						"          id_rango as integer,",
+						"          id_tipo as integer,",
+						"          fecha_movimiento as string,",
+						"          antiguedad_anios as string,",
+						"          salario_mensual as string,",
+						"          observaciones as string",
+						"     ),",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError',",
+						"     mapColumn(",
+						"          id_movimiento,",
+						"          id_efectivo,",
+						"          id_unidad_destino,",
+						"          id_rango,",
+						"          id_tipo,",
+						"          fecha_movimiento,",
+						"          antiguedad_anios,",
+						"          salario_mensual,",
+						"          observaciones",
+						"     )) ~> sink4",
+						"source5 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          id_operacion as integer,",
+						"          id_tipo as integer,",
+						"          id_unidad_resp as integer,",
+						"          id_zona as integer,",
+						"          nombre_operacion as string,",
+						"          fecha_inicio as string,",
+						"          fecha_fin as string,",
+						"          efectivos_desplegados as string,",
+						"          vehiculos_utilizados as string,",
+						"          duracion_dias as string,",
+						"          costo_operacion as string,",
+						"          resultado as string,",
+						"          detenidos as string,",
+						"          area_km2 as string,",
+						"          incidentes as string,",
+						"          observaciones as string",
+						"     ),",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError',",
+						"     mapColumn(",
+						"          id_operacion,",
+						"          id_tipo,",
+						"          id_unidad_resp,",
+						"          id_zona,",
+						"          nombre_operacion,",
+						"          fecha_inicio,",
+						"          fecha_fin,",
+						"          efectivos_desplegados,",
+						"          vehiculos_utilizados,",
+						"          duracion_dias,",
+						"          costo_operacion,",
+						"          resultado,",
+						"          detenidos,",
+						"          area_km2,",
+						"          incidentes,",
+						"          observaciones",
+						"     )) ~> sink5",
+						"source6 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          id_rango as integer,",
+						"          nombre as string,",
+						"          categoria as string,",
+						"          nivel_jerarquico as integer,",
+						"          abreviatura as string",
+						"     ),",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError',",
+						"     mapColumn(",
+						"          id_rango,",
+						"          nombre,",
+						"          categoria,",
+						"          nivel_jerarquico,",
+						"          abreviatura",
+						"     )) ~> sink6",
+						"source7 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          id_tipo as integer,",
+						"          nombre as string,",
+						"          descripcion as string",
+						"     ),",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError',",
+						"     mapColumn(",
+						"          id_tipo,",
+						"          nombre,",
+						"          descripcion",
+						"     )) ~> sink7",
+						"source8 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          id_tipo as integer,",
+						"          nombre as string,",
+						"          categoria as string",
+						"     ),",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError',",
+						"     mapColumn(",
+						"          id_tipo,",
+						"          nombre,",
+						"          categoria",
+						"     )) ~> sink8",
+						"source9 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          id_unidad as integer,",
+						"          id_brigada as integer,",
+						"          nombre as string,",
+						"          codigo as string,",
+						"          ciudad as string,",
+						"          departamento as string,",
+						"          tipo_cuartel as string",
+						"     ),",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError',",
+						"     mapColumn(",
+						"          id_unidad,",
+						"          id_brigada,",
+						"          nombre,",
+						"          codigo,",
+						"          ciudad,",
+						"          departamento,",
+						"          tipo_cuartel",
+						"     )) ~> sink9",
+						"source10 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          id_zona as integer,",
+						"          nombre as string,",
+						"          departamento as string,",
+						"          frontera_con as string,",
+						"          tipo_terreno as string,",
+						"          altitud_msnm as integer,",
+						"          nivel_riesgo as string,",
+						"          acceso_carretero as boolean",
+						"     ),",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError',",
+						"     mapColumn(",
+						"          id_zona,",
+						"          nombre,",
+						"          departamento,",
+						"          frontera_con,",
+						"          tipo_terreno,",
+						"          altitud_msnm,",
+						"          nivel_riesgo,",
+						"          acceso_carretero",
+						"     )) ~> sink10"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/df_gold_dim_efectivo')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"folder": {
+					"name": "gold"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "ds_silver_tbl_efectivos",
+								"type": "DatasetReference"
+							},
+							"name": "source1"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "gold_dim_efectivo",
+								"type": "DatasetReference"
+							},
+							"name": "sink1"
+						}
+					],
+					"transformations": [],
+					"scriptLines": [
+						"source(output(",
+						"          id_efectivo as integer,",
+						"          nombre as string,",
+						"          ci as string,",
+						"          genero as string,",
+						"          departamento_origen as string,",
+						"          fecha_nacimiento as date,",
+						"          fecha_ingreso as date,",
+						"          estado as string,",
+						"          salario_mensual as decimal(18,2)",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     query: 'SELECT DISTINCT \\n    e.id_efectivo,\\n    e.nombre,\\n    e.ci,\\n    CASE \\n        WHEN e.genero IN (\\'M\\', \\'Masculino\\') THEN \\'Masculino\\'\\n        WHEN e.genero IN (\\'F\\', \\'Femenino\\') THEN \\'Femenino\\'\\n        ELSE \\'No Especificado\\'\\n    END AS genero,\\n    e.departamento_origen,\\n    e.fecha_nacimiento,\\n    e.fecha_ingreso,\\n    e.estado,\\n    e.salario_mensual\\nFROM silver.tbl_efectivos e\\nWHERE e.id_efectivo IS NOT NULL',",
+						"     format: 'query') ~> source1",
+						"source1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          efectivo_key as integer,",
+						"          efectivo_id as integer,",
+						"          nombre as string,",
+						"          ci as string,",
+						"          genero as string,",
+						"          departamento_origen as string,",
+						"          fecha_nacimiento as date,",
+						"          fecha_ingreso as date,",
+						"          estado as string,",
+						"          salario_mensual as decimal(18,2)",
+						"     ),",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError',",
+						"     mapColumn(",
+						"          efectivo_id = id_efectivo,",
+						"          nombre,",
+						"          ci,",
+						"          genero,",
+						"          departamento_origen,",
+						"          fecha_nacimiento,",
+						"          fecha_ingreso,",
+						"          estado,",
+						"          salario_mensual",
+						"     )) ~> sink1"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/df_gold_dim_rango')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"folder": {
+					"name": "gold"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "ds_silver_tbl_rangos",
+								"type": "DatasetReference"
+							},
+							"name": "source1"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "gold_dim_rango",
+								"type": "DatasetReference"
+							},
+							"name": "sink1"
+						}
+					],
+					"transformations": [],
+					"scriptLines": [
+						"source(output(",
+						"          id_rango as integer,",
+						"          nombre as string,",
+						"          categoria as string,",
+						"          nivel_jerarquico as integer,",
+						"          abreviatura as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     query: 'SELECT DISTINCT \\n    r.id_rango,\\n    r.nombre,\\n    r.categoria,\\n    r.nivel_jerarquico,\\n    r.abreviatura\\nFROM silver.tbl_rangos r\\nWHERE r.id_rango IS NOT NULL',",
+						"     format: 'query') ~> source1",
+						"source1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          rango_key as integer,",
+						"          rango_id as integer,",
+						"          nombre as string,",
+						"          categoria as string,",
+						"          nivel_jerarquico as integer,",
+						"          abreviatura as string",
+						"     ),",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError',",
+						"     mapColumn(",
+						"          nombre,",
+						"          categoria,",
+						"          nivel_jerarquico,",
+						"          abreviatura",
+						"     )) ~> sink1"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/df_gold_dim_tiempo')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"folder": {
+					"name": "gold"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "ds_silver_tbl_operaciones",
+								"type": "DatasetReference"
+							},
+							"name": "source1"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "gold_dim_tiempo",
+								"type": "DatasetReference"
+							},
+							"name": "sink1"
+						}
+					],
+					"transformations": [],
+					"scriptLines": [
+						"source(output(",
+						"          fecha_key as integer,",
+						"          fecha as date,",
+						"          dia_semana as integer,",
+						"          nombre_dia as string,",
+						"          dia_mes as integer,",
+						"          mes as integer,",
+						"          nombre_mes as string,",
+						"          trimestre as integer,",
+						"          anio as integer,",
+						"          es_fin_semana as integer",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     query: 'SELECT \\n    -- fecha_key en formato entero YYYYMMDD\\n    CAST(CONVERT(VARCHAR(8), s.fecha_base, 112) AS INT) AS fecha_key,\\n    s.fecha_base AS fecha,\\n    DATEPART(WEEKDAY, s.fecha_base) AS dia_semana,\\n    DATENAME(WEEKDAY, s.fecha_base) AS nombre_dia,\\n    DAY(s.fecha_base) AS dia_mes,\\n    MONTH(s.fecha_base) AS mes,\\n    DATENAME(MONTH, s.fecha_base) AS nombre_mes,\\n    DATEPART(QUARTER, s.fecha_base) AS trimestre,\\n    YEAR(s.fecha_base) AS anio,\\n    CASE \\n        -- DATEPART con WEEKDAY depende de la configuración del servidor, \\n        -- pero típicamente 1 (Domingo) y 7 (Sábado) o 6 y 7 son fin de semana.\\n        WHEN DATEPART(WEEKDAY, s.fecha_base) IN (6, 7) THEN 1\\n        ELSE 0\\n    END AS es_fin_semana\\nFROM (\\n    -- Unificamos todas las fechas reales que existen en tu capa Silver\\n    SELECT CAST(fecha_movimiento AS DATE) AS fecha_base\\n    FROM silver.tbl_movimientos_personal\\n    WHERE fecha_movimiento IS NOT NULL\\n\\n    UNION\\n\\n    SELECT CAST(fecha_inicio AS DATE) AS fecha_base\\n    FROM silver.tbl_operaciones\\n    WHERE fecha_inicio IS NOT NULL\\n\\n    UNION\\n\\n    SELECT CAST(fecha_fin AS DATE) AS fecha_base\\n    FROM silver.tbl_operaciones\\n    WHERE fecha_fin IS NOT NULL\\n) s',",
+						"     format: 'query') ~> source1",
+						"source1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          fecha_key as integer,",
+						"          fecha as date,",
+						"          dia_semana as integer,",
+						"          nombre_dia as string,",
+						"          dia_mes as integer,",
+						"          mes as integer,",
+						"          nombre_mes as string,",
+						"          trimestre as integer,",
+						"          anio as integer,",
+						"          es_fin_semana as boolean",
+						"     ),",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError',",
+						"     mapColumn(",
+						"          fecha_key,",
+						"          fecha,",
+						"          dia_semana,",
+						"          nombre_dia,",
+						"          dia_mes,",
+						"          mes,",
+						"          nombre_mes,",
+						"          trimestre,",
+						"          anio",
+						"     )) ~> sink1"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/df_gold_dim_tipo_movimiento')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"folder": {
+					"name": "gold"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "ds_silver_tbl_tipos_movimiento",
+								"type": "DatasetReference"
+							},
+							"name": "source1"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "gold_dim_tipo_movimiento",
+								"type": "DatasetReference"
+							},
+							"name": "sink1"
+						}
+					],
+					"transformations": [],
+					"scriptLines": [
+						"source(output(",
+						"          id_tipo as integer,",
+						"          nombre as string,",
+						"          descripcion as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     query: 'SELECT DISTINCT \\n    id_tipo,\\n    nombre,\\n    descripcion\\nFROM silver.tbl_tipos_movimiento\\nWHERE id_tipo IS NOT NULL',",
+						"     format: 'query') ~> source1",
+						"source1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          tipo_movimiento_key as integer,",
+						"          tipo_id as integer,",
+						"          nombre as string,",
+						"          descripcion as string",
+						"     ),",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError',",
+						"     mapColumn(",
+						"          tipo_id = id_tipo,",
+						"          nombre,",
+						"          descripcion",
+						"     )) ~> sink1"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/df_gold_dim_tipo_operacion')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"folder": {
+					"name": "gold"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "ds_silver_tbl_tipos_operacion",
+								"type": "DatasetReference"
+							},
+							"name": "source1"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "gold_dim_tipo_operacion",
+								"type": "DatasetReference"
+							},
+							"name": "sink1"
+						}
+					],
+					"transformations": [],
+					"scriptLines": [
+						"source(output(",
+						"          id_tipo as integer,",
+						"          nombre as string,",
+						"          categoria as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     query: 'SELECT DISTINCT \\n    id_tipo,\\n    nombre,\\n    categoria\\nFROM silver.tbl_tipos_operacion\\nWHERE id_tipo IS NOT NULL',",
+						"     format: 'query') ~> source1",
+						"source1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          tipo_operacion_key as integer,",
+						"          tipo_id as integer,",
+						"          nombre as string,",
+						"          categoria as string",
+						"     ),",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError',",
+						"     mapColumn(",
+						"          tipo_id = id_tipo,",
+						"          nombre,",
+						"          categoria",
+						"     )) ~> sink1"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/df_gold_dim_unidad')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"folder": {
+					"name": "gold"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "ds_silver_tbl_unidades",
+								"type": "DatasetReference"
+							},
+							"name": "source1"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "gold_dim_unidad",
+								"type": "DatasetReference"
+							},
+							"name": "sink1"
+						}
+					],
+					"transformations": [],
+					"scriptLines": [
+						"source(output(",
+						"          id_unidad as integer,",
+						"          nombre as string,",
+						"          codigo as string,",
+						"          ciudad as string,",
+						"          departamento as string,",
+						"          tipo_cuartel as string,",
+						"          id_brigada as integer",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     query: 'SELECT DISTINCT \\n    id_unidad,\\n    nombre,\\n    codigo,\\n    ciudad,\\n    departamento,\\n    tipo_cuartel,\\n    id_brigada \\nFROM silver.tbl_unidades\\nWHERE id_unidad IS NOT NULL',",
+						"     format: 'query') ~> source1",
+						"source1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          unidad_key as integer,",
+						"          unidad_id as integer,",
+						"          nombre as string,",
+						"          codigo as string,",
+						"          ciudad as string,",
+						"          departamento as string,",
+						"          tipo_cuartel as string,",
+						"          brigada_id as integer",
+						"     ),",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError',",
+						"     mapColumn(",
+						"          unidad_id = id_unidad,",
+						"          nombre,",
+						"          codigo,",
+						"          ciudad,",
+						"          departamento,",
+						"          tipo_cuartel,",
+						"          brigada_id = id_brigada",
+						"     )) ~> sink1"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/df_gold_dim_zona_operacion')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"folder": {
+					"name": "gold"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "ds_silver_tbl_zonas",
+								"type": "DatasetReference"
+							},
+							"name": "source1"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "gold_dim_zona_operacion",
+								"type": "DatasetReference"
+							},
+							"name": "sink1"
+						}
+					],
+					"transformations": [],
+					"scriptLines": [
+						"source(output(",
+						"          id_zona as integer,",
+						"          nombre as string,",
+						"          departamento as string,",
+						"          frontera_con as string,",
+						"          tipo_terreno as string,",
+						"          altitud_msnm as integer,",
+						"          nivel_riesgo as string,",
+						"          acceso_carretero as boolean",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     query: 'SELECT DISTINCT \\n    id_zona,\\n    nombre,\\n    departamento,\\n    frontera_con,\\n    tipo_terreno,\\n    altitud_msnm,\\n    nivel_riesgo,\\n    acceso_carretero\\nFROM silver.tbl_zonas\\nWHERE id_zona IS NOT NULL',",
+						"     format: 'query') ~> source1",
+						"source1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          zona_key as integer,",
+						"          zona_id as integer,",
+						"          nombre as string,",
+						"          departamento as string,",
+						"          frontera_con as string,",
+						"          tipo_terreno as string,",
+						"          altitud_msnm as integer,",
+						"          nivel_riesgo as string,",
+						"          acceso_carretero as boolean",
+						"     ),",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError',",
+						"     mapColumn(",
+						"          zona_id = id_zona,",
+						"          nombre,",
+						"          departamento,",
+						"          frontera_con,",
+						"          tipo_terreno,",
+						"          altitud_msnm,",
+						"          nivel_riesgo,",
+						"          acceso_carretero",
+						"     )) ~> sink1"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/df_silver_efectivos')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"folder": {
+					"name": "silver"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "ds_bronze_efectivos",
+								"type": "DatasetReference"
+							},
+							"name": "source1"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "ds_silver_tbl_efectivos",
+								"type": "DatasetReference"
+							},
+							"name": "sink1"
+						}
+					],
+					"transformations": [
+						{
+							"name": "derivedColumn1"
+						},
+						{
+							"name": "derivedColumn2"
+						},
+						{
+							"name": "derivedColumn3"
+						},
+						{
+							"name": "derivedColumn4"
+						},
+						{
+							"name": "derivedColumn5"
+						},
+						{
+							"name": "derivedColumn6"
+						},
+						{
+							"name": "derivedColumn7"
+						},
+						{
+							"name": "filter1"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          id_efectivo as integer,",
+						"          id_especialidad as integer,",
+						"          id_unidad_actual as integer,",
+						"          id_rango_actual as integer,",
+						"          nombre as string,",
+						"          ci as string,",
+						"          fecha_nacimiento as string,",
+						"          genero as string,",
+						"          departamento_origen as string,",
+						"          fecha_ingreso as string,",
+						"          estado as string,",
+						"          salario_mensual as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     query: 'SELECT \\r\\n    id_efectivo,\\r\\n    id_especialidad,\\r\\n    id_unidad_actual,\\r\\n    id_rango_actual,\\r\\n\\r\\n    TRIM(nombre) AS nombre,\\r\\n    TRIM(ci) AS ci,\\r\\n    TRIM(fecha_nacimiento) AS fecha_nacimiento,\\r\\n    TRIM(genero) AS genero,\\r\\n    TRIM(departamento_origen) AS departamento_origen,\\r\\n    TRIM(fecha_ingreso) AS fecha_ingreso,\\r\\n    TRIM(estado) AS estado,\\r\\n    TRIM(salario_mensual) AS salario_mensual\\r\\nFROM bronze.tbl_efectivos',",
+						"     format: 'query') ~> source1",
+						"source1 derive(nombre = initCap(     trim(         regexReplace(             regexReplace(                 replace(nombre,'\\\\t',' '),                 '[^a-zA-ZáéíóúÁÉÍÓÚñÑ\\\\s]',                 ' '             ),             '\\\\s+',             ' '         )     ) )) ~> derivedColumn1",
+						"derivedColumn1 derive(ci = iif(     isNull(ci) ||     lower(trim(ci)) == 'sin dato' ||     lower(trim(ci)) == 'n/d' ||     lower(trim(ci)) == 'n/a' ||     lower(trim(ci)) == 'null' ||     lower(trim(ci)) == 's/d',      '000000',      regexReplace(         upper(ci),         '[^0-9]',         ''     ) )) ~> derivedColumn2",
+						"derivedColumn2 derive(fecha_nacimiento = iif(     isNull(fecha_nacimiento) ||     trim(fecha_nacimiento) == '' ||     upper(trim(fecha_nacimiento)) == 'NULL' ||     upper(trim(fecha_nacimiento)) == 'N/D' ||     upper(trim(fecha_nacimiento)) == 'SIN DATO' ||     trim(fecha_nacimiento) == '---',      toDate('1900-01-01'),      coalesce(          toDate(fecha_nacimiento, 'yyyy-MM-dd'),         toDate(fecha_nacimiento, 'dd/MM/yyyy'),         toDate(fecha_nacimiento, 'MM-dd-yyyy'),         toDate(fecha_nacimiento, 'yyyy/MM/dd'),         toDate(fecha_nacimiento, 'dd-MM-yyyy'),         toDate(fecha_nacimiento, 'yyyyMMdd')      ) ),",
+						"          fecha_ingreso = iif(     isNull(fecha_ingreso) ||     trim(fecha_ingreso) == '' ||     upper(trim(fecha_ingreso)) == 'NULL' ||     upper(trim(fecha_ingreso)) == 'N/D' ||     upper(trim(fecha_ingreso)) == 'SIN DATO' ||     upper(trim(fecha_ingreso)) == 'N/A' ||     upper(trim(fecha_ingreso)) == 'S/D' ||     trim(fecha_ingreso) == '---',      toDate('1900-01-01'),      coalesce(          toDate(fecha_ingreso, 'yyyy-MM-dd'),         toDate(fecha_ingreso, 'dd/MM/yyyy'),         toDate(fecha_ingreso, 'MM-dd-yyyy'),         toDate(fecha_ingreso, 'yyyy/MM/dd'),         toDate(fecha_ingreso, 'dd-MM-yyyy'),         toDate(fecha_ingreso, 'yyyyMMdd')      ) )) ~> derivedColumn3",
+						"derivedColumn3 derive(genero = iif(      isNull(genero) ||     trim(genero) == '' ||     upper(trim(genero)) == 'NULL' ||     upper(trim(genero)) == 'SIN DATO' ||     upper(trim(genero)) == 'N/D' ||     upper(trim(genero)) == 'S/D' ||     upper(trim(genero)) == '---' ||     trim(genero) == '-',      'SIN_DATO',      iif(          upper(trim(genero)) == 'M' ||         upper(trim(genero)) == 'H' ||         upper(trim(genero)) == 'HOMBRE' ||         upper(trim(genero)) == 'MASC' ||         upper(trim(genero)) == 'MASC.' ||         upper(trim(genero)) == 'MASCULINO',          'MASCULINO',          iif(              upper(trim(genero)) == 'F' ||             upper(trim(genero)) == 'F.' ||             upper(trim(genero)) == 'FEM' ||             upper(trim(genero)) == 'FEM.' ||             upper(trim(genero)) == 'FEMENINO' ||             upper(trim(genero)) == 'MUJER',              'FEMENINO',              'SIN_DATO'         )     ) )) ~> derivedColumn4",
+						"derivedColumn4 derive(departamento_origen = case(      in(['LP','LP.','L.P.','La Paz','LA PAZ','la paz','LaPaz','Lp','La  Paz'], departamento_origen),     'La Paz',      in(['CBBA','Cbba','Cbba.','COCHABAMBA','cochabamba','Cochabamba'], departamento_origen),     'Cochabamba',      in(['SC','SCZ','Sta Cruz','Sta. Cruz','Santa Cruz','SANTA CRUZ','santa cruz'], departamento_origen),     'Santa Cruz',      in(['Or','Or.','ORURO','Oruro','oruro'], departamento_origen),     'Oruro',      in(['Pt','Pt.','POTOSI','POTOSÍ','Potosi','Potosí','potosí'], departamento_origen),     'Potosí',      in(['Tj','Tj.','Tarija','TARIJA','tarija'], departamento_origen),     'Tarija',      in(['Bn','Bn.','Beni','BENI','beni'], departamento_origen),     'Beni',      in(['Pn','Pn.','Pando','PANDO','pando'], departamento_origen),     'Pando',      in(['Chq','Chq.','Chuquisaca','CHUQUISACA','chuquisaca','Sucre'], departamento_origen),     'Chuquisaca',      in(['-','N/D','ND','s/d','sin dato','Sin Dato','n/a'], departamento_origen),     'Sin Dato',      departamento_origen )) ~> derivedColumn5",
+						"derivedColumn5 derive(estado = case(\r",
+						"\r",
+						"    in([\r",
+						"        'activo','activo.','Activo','ACTIVO',\r",
+						"        'act','Act.','ACTV',\r",
+						"        'A',\r",
+						"        'en actividad','EN ACTIVIDAD'\r",
+						"    ], estado),\r",
+						"    'Activo',\r",
+						"\r",
+						"    in([\r",
+						"        'reserva','Reserva','RESERVA',\r",
+						"        'rsv','Rsv','Rsv.',\r",
+						"        'R',\r",
+						"        'en reserva','EN RESERVA'\r",
+						"    ], estado),\r",
+						"    'Reserva',\r",
+						"\r",
+						"    in([\r",
+						"        'baja','Baja','BAJA',\r",
+						"        'baja.',\r",
+						"        'Bja',\r",
+						"        'dado de baja','DADO DE BAJA',\r",
+						"        'B'\r",
+						"    ], estado),\r",
+						"    'Baja',\r",
+						"\r",
+						"    in([\r",
+						"        'null','NULL',\r",
+						"        'N/D','ND',\r",
+						"        's/d',\r",
+						"        'n/a'\r",
+						"    ], estado)\r",
+						"    || isNull(estado),\r",
+						"    'Sin Dato',\r",
+						"\r",
+						"    estado\r",
+						")) ~> derivedColumn6",
+						"derivedColumn6 derive(salario_mensual = iif(\r",
+						"    isNull(salario_mensual) || \r",
+						"    in(['null', 'NULL', 'n/a', '---', ''], trim(salario_mensual)),\r",
+						"    toDecimal(null(), 18, 2),\r",
+						"    \r",
+						"    toDecimal(\r",
+						"        iif(\r",
+						"            /* REGLA 1: Si es un número entero puro sin puntos ni comas (Ej: 2053 o 2288) */\r",
+						"            rlike(trim(regexReplace(regexReplace(trim(salario_mensual), `^(?i)[b\\s\\.s-]*`, ''), `(?i)[b\\s\\.s-]*$`, '')), `^\\d+$`),\r",
+						"            /* Le agregamos el .00 al final */\r",
+						"            trim(regexReplace(regexReplace(trim(salario_mensual), `^(?i)[b\\s\\.s-]*`, ''), `(?i)[b\\s\\.s-]*$`, '')) + '.00',\r",
+						"            \r",
+						"            /* REGLA 2: Para los números con puntos o comas (Ej: 6.482.12 o 3,661.53) */\r",
+						"            regexReplace(\r",
+						"                /* Primero: Volvemos todas las comas en puntos */\r",
+						"                replace(trim(regexReplace(regexReplace(trim(salario_mensual), `^(?i)[b\\s\\.s-]*`, ''), `(?i)[b\\s\\.s-]*$`, '')), ',', '.'),\r",
+						"                /* Segundo: Buscamos el punto seguido de 3 dígitos (miles) y lo borramos */\r",
+						"                `\\.([0-9]{3})`,\r",
+						"                `$1`\r",
+						"            )\r",
+						"        ),\r",
+						"        18,\r",
+						"        2\r",
+						"    )\r",
+						")) ~> derivedColumn7",
+						"derivedColumn7 filter(!isNull(salario_mensual)) ~> filter1",
+						"filter1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          id_efectivo as integer,",
+						"          id_especialidad as integer,",
+						"          id_unidad_actual as integer,",
+						"          id_rango_actual as integer,",
+						"          nombre as string,",
+						"          ci as string,",
+						"          fecha_nacimiento as date,",
+						"          genero as string,",
+						"          departamento_origen as string,",
+						"          fecha_ingreso as date,",
+						"          estado as string,",
+						"          salario_mensual as decimal(18,2)",
+						"     ),",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError',",
+						"     mapColumn(",
+						"          id_efectivo,",
+						"          id_especialidad,",
+						"          id_unidad_actual,",
+						"          id_rango_actual,",
+						"          nombre,",
+						"          ci,",
+						"          fecha_nacimiento,",
+						"          genero,",
+						"          departamento_origen,",
+						"          fecha_ingreso,",
+						"          estado,",
+						"          salario_mensual",
+						"     )) ~> sink1"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/df_silver_especialidades')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"folder": {
+					"name": "silver"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "ds_bronze_especialidades",
+								"type": "DatasetReference"
+							},
+							"name": "source1"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "ds_silver_tbl_especialidades",
+								"type": "DatasetReference"
+							},
+							"name": "sink1"
+						}
+					],
+					"transformations": [
+						{
+							"name": "derivedColumn1"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          id_especialidad as integer,",
+						"          nombre as string,",
+						"          area as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     query: 'SELECT\\n    id_especialidad,\\n\\n    TRIM(replace(nombre, \\'\\\\t\\', \\' \\')) AS nombre,\\n    TRIM(area) AS area\\n\\nFROM bronze.tbl_especialidades',",
+						"     format: 'query') ~> source1",
+						"source1 derive(nombre = initCap(     regexReplace(         trim(             regexReplace(                 replace(nombre, '\\t', ' '),                 '\\\\s+',                 ' '             )         ),         '[^a-zA-ZáéíóúÁÉÍÓÚñÑ\\\\s]',         ' '     ) ),",
+						"          area = iif(\r",
+						"    lower(trim(area)) == 'combate',\r",
+						"    'combate',\r",
+						"\r",
+						"    iif(\r",
+						"        lower(trim(area)) == 'apoyo_combate',\r",
+						"        'apoyo_combate',\r",
+						"\r",
+						"        iif(\r",
+						"            lower(trim(area)) == 'servicios',\r",
+						"            'servicios',\r",
+						"\r",
+						"            iif(\r",
+						"                lower(trim(area)) == 'tecnica',\r",
+						"                'tecnica',\r",
+						"                'sin_dato'\r",
+						"            )\r",
+						"        )\r",
+						"    )\r",
+						")) ~> derivedColumn1",
+						"derivedColumn1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          id_especialidad as integer,",
+						"          nombre as string,",
+						"          area as string",
+						"     ),",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError',",
+						"     mapColumn(",
+						"          id_especialidad,",
+						"          nombre,",
+						"          area",
+						"     )) ~> sink1"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/df_silver_estructura_organizacional')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"folder": {
+					"name": "silver"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "ds_bronze_estructura_organizacional",
+								"type": "DatasetReference"
+							},
+							"name": "source1"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "ds_silver_tbl_estructura_organizacional",
+								"type": "DatasetReference"
+							},
+							"name": "sink1"
+						}
+					],
+					"transformations": [
+						{
+							"name": "derivedColumn1"
+						},
+						{
+							"name": "derivedColumn2"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          id_estructura as integer,",
+						"          id_padre as integer,",
+						"          nivel as string,",
+						"          nombre as string,",
+						"          sigla as string,",
+						"          tipo as string,",
+						"          cobertura_departamentos as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     query: 'SELECT\\n    id_estructura,\\n    id_padre,\\n    TRIM(nivel) AS nivel,\\n    TRIM(nombre) AS nombre,\\n    TRIM(sigla) AS sigla,\\n    TRIM(tipo) AS tipo,\\n    TRIM(cobertura_departamentos) AS cobertura_departamentos\\nFROM bronze.tbl_estructura_organizacional',",
+						"     format: 'query') ~> source1",
+						"source1 derive(nivel = case(     in(['rama','RAMA','Rama'], lower(trim(nivel))), 'Rama',     in(['division','DIVISION','División','division'], lower(trim(nivel))), 'Division',     in(['brigada','BRIGADA'], lower(trim(nivel))), 'Brigada',     initCap(trim(nivel)) )) ~> derivedColumn1",
+						"derivedColumn1 derive(sigla = iif(\r",
+						"    isNull(sigla) || trim(sigla) == '' || lower(trim(sigla)) == 'null',\r",
+						"    case(\r",
+						"        lower(trim(nombre)) == 'ejército de bolivia', 'EB',\r",
+						"        lower(trim(nombre)) == 'fuerza aérea boliviana', 'FAB',\r",
+						"        lower(trim(nombre)) == 'armada boliviana', 'AB',\r",
+						"        \r",
+						"        locate('división i', lower(trim(nombre))) > 0, 'DIVI',\r",
+						"        locate('división ii', lower(trim(nombre))) > 0, 'DIVII',\r",
+						"        locate('división iii', lower(trim(nombre))) > 0, 'DIVIII',\r",
+						"        locate('división iv', lower(trim(nombre))) > 0, 'DIVIV',\r",
+						"        locate('división v', lower(trim(nombre))) > 0, 'DIVV',\r",
+						"        \r",
+						"        locate('ala aérea i', lower(trim(nombre))) > 0, 'AAI',\r",
+						"        locate('ala aérea ii', lower(trim(nombre))) > 0, 'AAII',\r",
+						"        locate('ala aérea iii', lower(trim(nombre))) > 0, 'AAIII',\r",
+						"        locate('ala aérea iv', lower(trim(nombre))) > 0, 'AAIV',\r",
+						"        \r",
+						"        locate('distrito naval i', lower(trim(nombre))) > 0, 'DNI',\r",
+						"        locate('distrito naval ii', lower(trim(nombre))) > 0, 'DNII',\r",
+						"        locate('distrito naval iii', lower(trim(nombre))) > 0, 'DNIII',\r",
+						"        locate('distrito naval iv', lower(trim(nombre))) > 0, 'DNIV',\r",
+						"        \r",
+						"        locate('ingeniería', lower(trim(nombre))) > 0, 'BI',\r",
+						"        locate('artillería', lower(trim(nombre))) > 0, 'BA',\r",
+						"        locate('caballería', lower(trim(nombre))) > 0, 'BC',\r",
+						"        locate('logística', lower(trim(nombre))) > 0, 'BL',\r",
+						"        locate('montaña', lower(trim(nombre))) > 0, 'BM',\r",
+						"        locate('selva', lower(trim(nombre))) > 0, 'BS',\r",
+						"        locate('fuerzas especiales', lower(trim(nombre))) > 0, 'BFE',\r",
+						"        locate('colorados', lower(trim(nombre))) > 0, 'BCB',\r",
+						"        locate('bolívar', lower(trim(nombre))) > 0, 'BB',\r",
+						"        'BR'\r",
+						"    ),\r",
+						"    upper(trim(sigla))\r",
+						"),",
+						"          tipo = iif(     isNull(tipo)     || trim(tipo) == ''     || lower(trim(tipo)) == 'null',      'Sin Tipo',      initCap(trim(tipo)) ),",
+						"          cobertura_departamentos = iif(     isNull(cobertura_departamentos)     || trim(cobertura_departamentos) == ''     || lower(trim(cobertura_departamentos)) == 'null',      'Sin Cobertura',      initCap(trim(cobertura_departamentos)) )) ~> derivedColumn2",
+						"derivedColumn2 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          id_estructura as integer,",
+						"          id_padre as integer,",
+						"          nivel as string,",
+						"          nombre as string,",
+						"          sigla as string,",
+						"          tipo as string,",
+						"          cobertura_departamentos as string",
+						"     ),",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError',",
+						"     mapColumn(",
+						"          id_estructura,",
+						"          id_padre,",
+						"          nivel,",
+						"          nombre,",
+						"          sigla,",
+						"          tipo,",
+						"          cobertura_departamentos",
+						"     )) ~> sink1"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/df_silver_movimientos_personal')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"folder": {
+					"name": "silver"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "ds_bronze_movimientos_personal",
+								"type": "DatasetReference"
+							},
+							"name": "source1"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "ds_silver_tbl_movimientos_personal",
+								"type": "DatasetReference"
+							},
+							"name": "sink1"
+						}
+					],
+					"transformations": [
+						{
+							"name": "derivedColumn1"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          id_movimiento as integer,",
+						"          id_efectivo as integer,",
+						"          id_unidad_destino as integer,",
+						"          id_rango as integer,",
+						"          id_tipo as integer,",
+						"          fecha_movimiento as string,",
+						"          antiguedad_anios as string,",
+						"          salario_mensual as string,",
+						"          observaciones as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     query: 'SELECT\\n    id_movimiento,\\n    id_efectivo,\\n    id_unidad_destino,\\n    id_rango,\\n    id_tipo,\\n\\n    TRIM(fecha_movimiento) AS fecha_movimiento,\\n    TRIM(antiguedad_anios) AS antiguedad_anios,\\n    TRIM(salario_mensual) AS salario_mensual,\\n    TRIM(observaciones) AS observaciones\\n\\nFROM bronze.tbl_movimientos_personal',",
+						"     format: 'query') ~> source1",
+						"source1 derive(fecha_movimiento = iif(\r",
+						"    isNull(fecha_movimiento)\r",
+						"    || trim(fecha_movimiento) == ''\r",
+						"    || upper(trim(fecha_movimiento)) == 'NULL',\r",
+						"\r",
+						"    toDate('1900-01-01'),\r",
+						"\r",
+						"    coalesce(\r",
+						"\r",
+						"        toDate(fecha_movimiento, 'yyyy/MM/dd'),\r",
+						"        toDate(fecha_movimiento, 'yyyy-MM-dd'),\r",
+						"\r",
+						"        toDate(fecha_movimiento, 'dd/MM/yyyy'),\r",
+						"        toDate(fecha_movimiento, 'dd-MM-yyyy'),\r",
+						"\r",
+						"        toDate(fecha_movimiento, 'MM-dd-yyyy'),\r",
+						"\r",
+						"        toDate(\r",
+						"            toString(fecha_movimiento),\r",
+						"            'yyyyMMdd'\r",
+						"        ),\r",
+						"\r",
+						"        toDate('1900-01-01')\r",
+						"    )\r",
+						"),",
+						"          salario_mensual = iif(    isNull(salario_mensual) ||     in(['null', 'NULL', 'n/a', '---', ''], trim(salario_mensual)),    toDecimal(null(), 18, 2),        toDecimal(        iif(            /* REGLA 1: Si es un número entero puro sin puntos ni comas (Ej: 2053 o 2288) */            rlike(trim(regexReplace(regexReplace(trim(salario_mensual), `^(?i)[b\\s\\.s-]*`, ''), `(?i)[b\\s\\.s-]*$`, '')), `^\\d+$`),            /* Le agregamos el .00 al final */            trim(regexReplace(regexReplace(trim(salario_mensual), `^(?i)[b\\s\\.s-]*`, ''), `(?i)[b\\s\\.s-]*$`, '')) + '.00',                        /* REGLA 2: Para los números con puntos o comas (Ej: 6.482.12 o 3,661.53) */            regexReplace(                /* Primero: Volvemos todas las comas en puntos */                replace(trim(regexReplace(regexReplace(trim(salario_mensual), `^(?i)[b\\s\\.s-]*`, ''), `(?i)[b\\s\\.s-]*$`, '')), ',', '.'),                /* Segundo: Buscamos el punto seguido de 3 dígitos (miles) y lo borramos */                `\\.([0-9]{3})`,                `$1`            )        ),        18,        2    )),",
+						"          antiguedad_anios = iif(\r",
+						"    isNull(antiguedad_anios) || in(['null', 'NULL', 'n/a', '---', ''], trim(antiguedad_anios)),\r",
+						"    toInteger(null()),\r",
+						"    \r",
+						"    toInteger(\r",
+						"        case(\r",
+						"            /* 1. MAPEO DE PALABRAS ESCRITAS EN LETRAS */\r",
+						"            in(['cero', 'cero años', 'cero año'], lower(trim(antiguedad_anios))), '0',\r",
+						"            in(['uno', '1 año', '1 años', 'uno años', 'uno año'], lower(trim(antiguedad_anios))), '1',\r",
+						"            in(['dos', 'dos años'], lower(trim(antiguedad_anios))), '2',\r",
+						"            in(['tres', 'tres años'], lower(trim(antiguedad_anios))), '3',\r",
+						"            in(['cuatro', 'cuatro años'], lower(trim(antiguedad_anios))), '4',\r",
+						"            in(['cinco', 'cinco años'], lower(trim(antiguedad_anios))), '5',\r",
+						"            in(['seis', 'seis años'], lower(trim(antiguedad_anios))), '6',\r",
+						"            in(['siete', 'siete años'], lower(trim(antiguedad_anios))), '7',\r",
+						"            in(['ocho', 'ocho años'], lower(trim(antiguedad_anios))), '8',\r",
+						"            in(['nueve', 'nueve años'], lower(trim(antiguedad_anios))), '9',\r",
+						"            in(['diez', 'diez años'], lower(trim(antiguedad_anios))), '10',\r",
+						"            in(['once', 'once años'], lower(trim(antiguedad_anios))), '11',\r",
+						"            in(['doce', 'doce años'], lower(trim(antiguedad_anios))), '12',\r",
+						"            in(['trece', 'trece años'], lower(trim(antiguedad_anios))), '13',\r",
+						"            in(['catorce', 'catorce años'], lower(trim(antiguedad_anios))), '14',\r",
+						"            in(['quince', 'quince años'], lower(trim(antiguedad_anios))), '15',\r",
+						"            in(['dieciséis', 'dieciséis años'], lower(trim(antiguedad_anios))), '16',\r",
+						"            in(['diecisiete', 'diecisiete años'], lower(trim(antiguedad_anios))), '17',\r",
+						"            in(['dieciocho', 'dieciocho años'], lower(trim(antiguedad_anios))), '18',\r",
+						"            in(['diecinueve', 'diecinueve años'], lower(trim(antiguedad_anios))), '19',\r",
+						"            in(['veinte', 'veinte años'], lower(trim(antiguedad_anios))), '20',\r",
+						"            in(['veintiuno', 'veintiuno años'], lower(trim(antiguedad_anios))), '21',\r",
+						"            in(['veintidós', 'veintidós años'], lower(trim(antiguedad_anios))), '22',\r",
+						"            in(['veintitrés', 'veintitrés años'], lower(trim(antiguedad_anios))), '23',\r",
+						"            in(['veinticuatro', 'veinticuatro años'], lower(trim(antiguedad_anios))), '24',\r",
+						"            in(['veinticinco', 'veinticinco años'], lower(trim(antiguedad_anios))), '25',\r",
+						"            \r",
+						"            /* 2. PROCESAMIENTO, REDONDEO EXPLÍCITO Y CONVERSIÓN A CADENA */\r",
+						"            true(), \r",
+						"            toString(\r",
+						"                round(\r",
+						"                    toFloat(\r",
+						"                        replace(\r",
+						"                            regexReplace(lower(trim(antiguedad_anios)), `(?i)(aprox\\.|años|año|a\\.)`, ''),\r",
+						"                            ',', '.'\r",
+						"                        )\r",
+						"                    ),\r",
+						"                    0,\r",
+						"                    5\r",
+						"                )\r",
+						"            )\r",
+						"        )\r",
+						"    )\r",
+						"),",
+						"          observaciones = iif(\r",
+						"    isNull(observaciones) ||\r",
+						"    trim(observaciones) == '' ||\r",
+						"    lower(trim(observaciones)) == 'n/a' ||\r",
+						"    lower(trim(observaciones)) == 's/n' ||\r",
+						"    lower(trim(observaciones)) == 'sin obs.' ||\r",
+						"    lower(trim(observaciones)) == 'sin observacion' ||\r",
+						"    lower(trim(observaciones)) == 'sin observaciones' ||\r",
+						"    lower(trim(observaciones)) == 'null' ||\r",
+						"    trim(observaciones) == '-' ,\r",
+						"\r",
+						"    'Sin Observacion',\r",
+						"\r",
+						"    initCap(\r",
+						"        trim(\r",
+						"            regexReplace(observaciones, '\\\\s+', ' ')\r",
+						"        )\r",
+						"    )\r",
+						")) ~> derivedColumn1",
+						"derivedColumn1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          id_movimiento as integer,",
+						"          id_efectivo as integer,",
+						"          id_unidad_destino as integer,",
+						"          id_rango as integer,",
+						"          id_tipo as integer,",
+						"          fecha_movimiento as date,",
+						"          antiguedad_anios as integer,",
+						"          salario_mensual as decimal(18,2),",
+						"          observaciones as string",
+						"     ),",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError',",
+						"     mapColumn(",
+						"          id_movimiento,",
+						"          id_efectivo,",
+						"          id_unidad_destino,",
+						"          id_rango,",
+						"          id_tipo,",
+						"          fecha_movimiento,",
+						"          antiguedad_anios,",
+						"          salario_mensual,",
+						"          observaciones",
+						"     )) ~> sink1"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/df_silver_operaciones')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"folder": {
+					"name": "silver"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "ds_bronze_operaciones",
+								"type": "DatasetReference"
+							},
+							"name": "source1"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "ds_silver_tbl_operaciones",
+								"type": "DatasetReference"
+							},
+							"name": "sink1"
+						}
+					],
+					"transformations": [
+						{
+							"name": "derivedColumn1"
+						},
+						{
+							"name": "derivedColumn2"
+						},
+						{
+							"name": "derivedColumn3"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          id_operacion as integer,",
+						"          id_tipo as integer,",
+						"          id_unidad_resp as integer,",
+						"          id_zona as integer,",
+						"          nombre_operacion as string,",
+						"          fecha_inicio as string,",
+						"          fecha_fin as string,",
+						"          efectivos_desplegados as string,",
+						"          vehiculos_utilizados as string,",
+						"          duracion_dias as string,",
+						"          costo_operacion as string,",
+						"          resultado as string,",
+						"          detenidos as string,",
+						"          area_km2 as string,",
+						"          incidentes as string,",
+						"          observaciones as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     query: 'SELECT\\n    id_operacion,\\n    id_tipo,\\n    id_unidad_resp,\\n    id_zona,\\n\\n    TRIM(nombre_operacion) AS nombre_operacion,\\n    TRIM(fecha_inicio) AS fecha_inicio,\\n    TRIM(fecha_fin) AS fecha_fin,\\n    TRIM(efectivos_desplegados) AS efectivos_desplegados,\\n    TRIM(vehiculos_utilizados) AS vehiculos_utilizados,\\n    TRIM(duracion_dias) AS duracion_dias,\\n    TRIM(costo_operacion) AS costo_operacion,\\n    TRIM(resultado) AS resultado,\\n    TRIM(detenidos) AS detenidos,\\n    TRIM(area_km2) AS area_km2,\\n    TRIM(incidentes) AS incidentes,\\n    TRIM(observaciones) AS observaciones\\nFROM bronze.tbl_operaciones',",
+						"     format: 'query') ~> source1",
+						"source1 derive(fecha_inicio = iif(\r",
+						"    isNull(fecha_inicio) ||\r",
+						"    trim(fecha_inicio) == '' ||\r",
+						"    in(['NULL', 'N/D', 'SIN DATO', 'N/A', 'S/D', '---'], upper(trim(fecha_inicio))),\r",
+						"\r",
+						"    toDate('1900-01-01', 'yyyy-MM-dd'),\r",
+						"\r",
+						"    coalesce(\r",
+						"        /* 1. NUEVO: Mapeo para abreviaturas con GUIONES (Ej: 30-jul-2021 -> 30-07-2021, 3-mar-2024 -> 03-03-2024) */\r",
+						"        toDate(\r",
+						"            iif(\r",
+						"                rlike(trim(fecha_inicio), `^[0-9]{1,2}-[A-Za-z]{3}-[0-9]{4}$`),\r",
+						"                regexReplace(\r",
+						"                    case(\r",
+						"                        locate('-ene-', lower(trim(fecha_inicio))) > 0, replace(lower(trim(fecha_inicio)), '-ene-', '-01-'),\r",
+						"                        locate('-feb-', lower(trim(fecha_inicio))) > 0, replace(lower(trim(fecha_inicio)), '-feb-', '-02-'),\r",
+						"                        locate('-mar-', lower(trim(fecha_inicio))) > 0, replace(lower(trim(fecha_inicio)), '-mar-', '-03-'),\r",
+						"                        locate('-abr-', lower(trim(fecha_inicio))) > 0, replace(lower(trim(fecha_inicio)), '-abr-', '-04-'),\r",
+						"                        locate('-may-', lower(trim(fecha_inicio))) > 0, replace(lower(trim(fecha_inicio)), '-may-', '-05-'),\r",
+						"                        locate('-jun-', lower(trim(fecha_inicio))) > 0, replace(lower(trim(fecha_inicio)), '-jun-', '-06-'),\r",
+						"                        locate('-jul-', lower(trim(fecha_inicio))) > 0, replace(lower(trim(fecha_inicio)), '-jul-', '-07-'),\r",
+						"                        locate('-ago-', lower(trim(fecha_inicio))) > 0, replace(lower(trim(fecha_inicio)), '-ago-', '-08-'),\r",
+						"                        locate('-sep-', lower(trim(fecha_inicio))) > 0, replace(lower(trim(fecha_inicio)), '-sep-', '-09-'),\r",
+						"                        locate('-oct-', lower(trim(fecha_inicio))) > 0, replace(lower(trim(fecha_inicio)), '-oct-', '-10-'),\r",
+						"                        locate('-nov-', lower(trim(fecha_inicio))) > 0, replace(lower(trim(fecha_inicio)), '-nov-', '-11-'),\r",
+						"                        locate('-dic-', lower(trim(fecha_inicio))) > 0, replace(lower(trim(fecha_inicio)), '-dic-', '-12-'),\r",
+						"                        trim(fecha_inicio)\r",
+						"                    ),\r",
+						"                    `^([0-9])(-)`, `0$1$2`\r",
+						"                ),\r",
+						"                toString(null())\r",
+						"            ),\r",
+						"            'dd-MM-yyyy'\r",
+						"        ),\r",
+						"\r",
+						"        /* 2. Mapeo para abreviaturas con BARRAS (Ej: 22/ABR/2024 -> 22/04/2024) */\r",
+						"        toDate(\r",
+						"            case(\r",
+						"                locate('/ene/', lower(trim(fecha_inicio))) > 0, replace(lower(trim(fecha_inicio)), '/ene/', '/01/'),\r",
+						"                locate('/feb/', lower(trim(fecha_inicio))) > 0, replace(lower(trim(fecha_inicio)), '/feb/', '/02/'),\r",
+						"                locate('/mar/', lower(trim(fecha_inicio))) > 0, replace(lower(trim(fecha_inicio)), '/mar/', '/03/'),\r",
+						"                locate('/abr/', lower(trim(fecha_inicio))) > 0, replace(lower(trim(fecha_inicio)), '/abr/', '/04/'),\r",
+						"                locate('/may/', lower(trim(fecha_inicio))) > 0, replace(lower(trim(fecha_inicio)), '/may/', '/05/'),\r",
+						"                locate('/jun/', lower(trim(fecha_inicio))) > 0, replace(lower(trim(fecha_inicio)), '/jun/', '/06/'),\r",
+						"                locate('/jul/', lower(trim(fecha_inicio))) > 0, replace(lower(trim(fecha_inicio)), '/jul/', '/07/'),\r",
+						"                locate('/ago/', lower(trim(fecha_inicio))) > 0, replace(lower(trim(fecha_inicio)), '/ago/', '/08/'),\r",
+						"                locate('/sep/', lower(trim(fecha_inicio))) > 0, replace(lower(trim(fecha_inicio)), '/sep/', '/09/'),\r",
+						"                locate('/oct/', lower(trim(fecha_inicio))) > 0, replace(lower(trim(fecha_inicio)), '/oct/', '/10/'),\r",
+						"                locate('/nov/', lower(trim(fecha_inicio))) > 0, replace(lower(trim(fecha_inicio)), '/nov/', '/11/'),\r",
+						"                locate('/dic/', lower(trim(fecha_inicio))) > 0, replace(lower(trim(fecha_inicio)), '/dic/', '/12/'),\r",
+						"                trim(fecha_inicio)\r",
+						"            ),\r",
+						"            'dd/MM/yyyy'\r",
+						"        ),\r",
+						"\r",
+						"        /* 3. Mapeo para texto largo (Ej: \"abril 18, 2024\") */\r",
+						"        toDate(\r",
+						"            case(\r",
+						"                locate('enero', lower(trim(fecha_inicio))) > 0, replace(replace(replace(lower(trim(fecha_inicio)), 'enero', '01'), 'de ', ''), ',', ''),\r",
+						"                locate('febrero', lower(trim(fecha_inicio))) > 0, replace(replace(replace(lower(trim(fecha_inicio)), 'febrero', '02'), 'de ', ''), ',', ''),\r",
+						"                locate('marzo', lower(trim(fecha_inicio))) > 0, replace(replace(replace(lower(trim(fecha_inicio)), 'marzo', '03'), 'de ', ''), ',', ''),\r",
+						"                locate('abril', lower(trim(fecha_inicio))) > 0, replace(replace(replace(lower(trim(fecha_inicio)), 'abril', '04'), 'de ', ''), ',', ''),\r",
+						"                locate('mayo', lower(trim(fecha_inicio))) > 0, replace(replace(replace(lower(trim(fecha_inicio)), 'mayo', '05'), 'de ', ''), ',', ''),\r",
+						"                locate('junio', lower(trim(fecha_inicio))) > 0, replace(replace(replace(lower(trim(fecha_inicio)), 'junio', '06'), 'de ', ''), ',', ''),\r",
+						"                locate('julio', lower(trim(fecha_inicio))) > 0, replace(replace(replace(lower(trim(fecha_inicio)), 'julio', '07'), 'de ', ''), ',', ''),\r",
+						"                locate('agosto', lower(trim(fecha_inicio))) > 0, replace(replace(replace(lower(trim(fecha_inicio)), 'agosto', '08'), 'de ', ''), ',', ''),\r",
+						"                locate('septiembre', lower(trim(fecha_inicio))) > 0, replace(replace(replace(lower(trim(fecha_inicio)), 'septiembre', '09'), 'de ', ''), ',', ''),\r",
+						"                locate('octubre', lower(trim(fecha_inicio))) > 0, replace(replace(replace(lower(trim(fecha_inicio)), 'octubre', '10'), 'de ', ''), ',', ''),\r",
+						"                locate('noviembre', lower(trim(fecha_inicio))) > 0, replace(replace(replace(lower(trim(fecha_inicio)), 'noviembre', '11'), 'de ', ''), ',', ''),\r",
+						"                locate('diciembre', lower(trim(fecha_inicio))) > 0, replace(replace(replace(lower(trim(fecha_inicio)), 'diciembre', '12'), 'de ', ''), ',', ''),\r",
+						"                trim(fecha_inicio)\r",
+						"            ),\r",
+						"            'MM d yyyy'\r",
+						"        ),\r",
+						"\r",
+						"        /* 4. Formato estándar ISO (yyyy-MM-dd) */\r",
+						"        toDate(trim(fecha_inicio), 'yyyy-MM-dd'),\r",
+						"\r",
+						"        /* 5. Formato latino puro (dd/MM/yyyy) */\r",
+						"        toDate(trim(fecha_inicio), 'dd/MM/yyyy'),\r",
+						"\r",
+						"        /* 6. Formato americano con guiones (MM-dd-yyyy) */\r",
+						"        toDate(trim(fecha_inicio), 'MM-dd-yyyy'),\r",
+						"\r",
+						"        /* 7. Formato latino con guiones (dd-MM-yyyy) */\r",
+						"        toDate(trim(fecha_inicio), 'dd-MM-yyyy'),\r",
+						"\r",
+						"        /* 8. Formato con barras invertidas (yyyy/MM/dd) */\r",
+						"        toDate(trim(fecha_inicio), 'yyyy/MM/dd'),\r",
+						"\r",
+						"        /* 9. Formato numérico pegado (yyyyMMdd) */\r",
+						"        toDate(trim(fecha_inicio), 'yyyyMMdd')\r",
+						"    )\r",
+						"),",
+						"          fecha_fin = iif(\r",
+						"    isNull(fecha_fin) ||\r",
+						"    trim(fecha_fin) == '' ||\r",
+						"    in(['NULL', 'N/D', 'SIN DATO', 'N/A', 'S/D', '---'], upper(trim(fecha_fin))),\r",
+						"\r",
+						"    toDate('1900-01-01', 'yyyy-MM-dd'),\r",
+						"\r",
+						"    coalesce(\r",
+						"        /* 1. Mapeo para abreviaturas con GUIONES (Ej: 30-jul-2021 -> 30-07-2021, 3-mar-2024 -> 03-03-2024) */\r",
+						"        toDate(\r",
+						"            iif(\r",
+						"                rlike(trim(fecha_fin), `^[0-9]{1,2}-[A-Za-z]{3}-[0-9]{4}$`),\r",
+						"                regexReplace(\r",
+						"                    case(\r",
+						"                        locate('-ene-', lower(trim(fecha_fin))) > 0, replace(lower(trim(fecha_fin)), '-ene-', '-01-'),\r",
+						"                        locate('-feb-', lower(trim(fecha_fin))) > 0, replace(lower(trim(fecha_fin)), '-feb-', '-02-'),\r",
+						"                        locate('-mar-', lower(trim(fecha_fin))) > 0, replace(lower(trim(fecha_fin)), '-mar-', '-03-'),\r",
+						"                        locate('-abr-', lower(trim(fecha_fin))) > 0, replace(lower(trim(fecha_fin)), '-abr-', '-04-'),\r",
+						"                        locate('-may-', lower(trim(fecha_fin))) > 0, replace(lower(trim(fecha_fin)), '-may-', '-05-'),\r",
+						"                        locate('-jun-', lower(trim(fecha_fin))) > 0, replace(lower(trim(fecha_fin)), '-jun-', '-06-'),\r",
+						"                        locate('-jul-', lower(trim(fecha_fin))) > 0, replace(lower(trim(fecha_fin)), '-jul-', '-07-'),\r",
+						"                        locate('-ago-', lower(trim(fecha_fin))) > 0, replace(lower(trim(fecha_fin)), '-ago-', '-08-'),\r",
+						"                        locate('-sep-', lower(trim(fecha_fin))) > 0, replace(lower(trim(fecha_fin)), '-sep-', '-09-'),\r",
+						"                        locate('-oct-', lower(trim(fecha_fin))) > 0, replace(lower(trim(fecha_fin)), '-oct-', '-10-'),\r",
+						"                        locate('-nov-', lower(trim(fecha_fin))) > 0, replace(lower(trim(fecha_fin)), '-nov-', '-11-'),\r",
+						"                        locate('-dic-', lower(trim(fecha_fin))) > 0, replace(lower(trim(fecha_fin)), '-dic-', '-12-'),\r",
+						"                        trim(fecha_fin)\r",
+						"                    ),\r",
+						"                    `^([0-9])(-)`, `0$1$2`\r",
+						"                ),\r",
+						"                toString(null())\r",
+						"            ),\r",
+						"            'dd-MM-yyyy'\r",
+						"        ),\r",
+						"\r",
+						"        /* 2. Mapeo para abreviaturas con BARRAS (Ej: 22/ABR/2024 -> 22/04/2024) */\r",
+						"        toDate(\r",
+						"            case(\r",
+						"                locate('/ene/', lower(trim(fecha_fin))) > 0, replace(lower(trim(fecha_fin)), '/ene/', '/01/'),\r",
+						"                locate('/feb/', lower(trim(fecha_fin))) > 0, replace(lower(trim(fecha_fin)), '/feb/', '/02/'),\r",
+						"                locate('/mar/', lower(trim(fecha_fin))) > 0, replace(lower(trim(fecha_fin)), '/mar/', '/03/'),\r",
+						"                locate('/abr/', lower(trim(fecha_fin))) > 0, replace(lower(trim(fecha_fin)), '/abr/', '/04/'),\r",
+						"                locate('/may/', lower(trim(fecha_fin))) > 0, replace(lower(trim(fecha_fin)), '/may/', '/05/'),\r",
+						"                locate('/jun/', lower(trim(fecha_fin))) > 0, replace(lower(trim(fecha_fin)), '/jun/', '/06/'),\r",
+						"                locate('/jul/', lower(trim(fecha_fin))) > 0, replace(lower(trim(fecha_fin)), '/jul/', '/07/'),\r",
+						"                locate('/ago/', lower(trim(fecha_fin))) > 0, replace(lower(trim(fecha_fin)), '/ago/', '/08/'),\r",
+						"                locate('/sep/', lower(trim(fecha_fin))) > 0, replace(lower(trim(fecha_fin)), '/sep/', '/09/'),\r",
+						"                locate('/oct/', lower(trim(fecha_fin))) > 0, replace(lower(trim(fecha_fin)), '/oct/', '/10/'),\r",
+						"                locate('/nov/', lower(trim(fecha_fin))) > 0, replace(lower(trim(fecha_fin)), '/nov/', '/11/'),\r",
+						"                locate('/dic/', lower(trim(fecha_fin))) > 0, replace(lower(trim(fecha_fin)), '/dic/', '/12/'),\r",
+						"                trim(fecha_fin)\r",
+						"            ),\r",
+						"            'dd/MM/yyyy'\r",
+						"        ),\r",
+						"\r",
+						"        /* 3. Mapeo para texto largo (Ej: \"abril 18, 2024\") */\r",
+						"        toDate(\r",
+						"            case(\r",
+						"                locate('enero', lower(trim(fecha_fin))) > 0, replace(replace(replace(lower(trim(fecha_fin)), 'enero', '01'), 'de ', ''), ',', ''),\r",
+						"                locate('febrero', lower(trim(fecha_fin))) > 0, replace(replace(replace(lower(trim(fecha_fin)), 'febrero', '02'), 'de ', ''), ',', ''),\r",
+						"                locate('marzo', lower(trim(fecha_fin))) > 0, replace(replace(replace(lower(trim(fecha_fin)), 'marzo', '03'), 'de ', ''), ',', ''),\r",
+						"                locate('abril', lower(trim(fecha_fin))) > 0, replace(replace(replace(lower(trim(fecha_fin)), 'abril', '04'), 'de ', ''), ',', ''),\r",
+						"                locate('mayo', lower(trim(fecha_fin))) > 0, replace(replace(replace(lower(trim(fecha_fin)), 'mayo', '05'), 'de ', ''), ',', ''),\r",
+						"                locate('junio', lower(trim(fecha_fin))) > 0, replace(replace(replace(lower(trim(fecha_fin)), 'junio', '06'), 'de ', ''), ',', ''),\r",
+						"                locate('julio', lower(trim(fecha_fin))) > 0, replace(replace(replace(lower(trim(fecha_fin)), 'julio', '07'), 'de ', ''), ',', ''),\r",
+						"                locate('agosto', lower(trim(fecha_fin))) > 0, replace(replace(replace(lower(trim(fecha_fin)), 'agosto', '08'), 'de ', ''), ',', ''),\r",
+						"                locate('septiembre', lower(trim(fecha_fin))) > 0, replace(replace(replace(lower(trim(fecha_fin)), 'septiembre', '09'), 'de ', ''), ',', ''),\r",
+						"                locate('octubre', lower(trim(fecha_fin))) > 0, replace(replace(replace(lower(trim(fecha_fin)), 'octubre', '10'), 'de ', ''), ',', ''),\r",
+						"                locate('noviembre', lower(trim(fecha_fin))) > 0, replace(replace(replace(lower(trim(fecha_fin)), 'noviembre', '11'), 'de ', ''), ',', ''),\r",
+						"                locate('diciembre', lower(trim(fecha_fin))) > 0, replace(replace(replace(lower(trim(fecha_fin)), 'diciembre', '12'), 'de ', ''), ',', ''),\r",
+						"                trim(fecha_fin)\r",
+						"            ),\r",
+						"            'MM d yyyy'\r",
+						"        ),\r",
+						"\r",
+						"        /* 4. Formato estándar ISO (yyyy-MM-dd) */\r",
+						"        toDate(trim(fecha_fin), 'yyyy-MM-dd'),\r",
+						"\r",
+						"        /* 5. Formato latino puro (dd/MM/yyyy) */\r",
+						"        toDate(trim(fecha_fin), 'dd/MM/yyyy'),\r",
+						"\r",
+						"        /* 6. Formato americano con guiones (MM-dd-yyyy) */\r",
+						"        toDate(trim(fecha_fin), 'MM-dd-yyyy'),\r",
+						"\r",
+						"        /* 7. Formato latino con guiones (dd-MM-yyyy) */\r",
+						"        toDate(trim(fecha_fin), 'dd-MM-yyyy'),\r",
+						"\r",
+						"        /* 8. Formato con barras invertidas (yyyy/MM/dd) */\r",
+						"        toDate(trim(fecha_fin), 'yyyy/MM/dd'),\r",
+						"\r",
+						"        /* 9. Formato numérico pegado (yyyyMMdd) */\r",
+						"        toDate(trim(fecha_fin), 'yyyyMMdd')\r",
+						"    )\r",
+						")) ~> derivedColumn1",
+						"derivedColumn1 derive(efectivos_desplegados = iif(     isNull(efectivos_desplegados) || in(['null', 'NULL', 'n/a', '---', '', 'n/d'], trim(efectivos_desplegados)),     toInteger(0),          toInteger(         case(             in(['cero'], lower(trim(efectivos_desplegados))), '0',             in(['uno'], lower(trim(efectivos_desplegados))), '1',             in(['cuatro'], lower(trim(efectivos_desplegados))), '4',             in(['cinco'], lower(trim(efectivos_desplegados))), '5',             in(['seis'], lower(trim(efectivos_desplegados))), '6',             in(['siete'], lower(trim(efectivos_desplegados))), '7',             in(['ocho'], lower(trim(efectivos_desplegados))), '8',             in(['nueve'], lower(trim(efectivos_desplegados))), '9',             in(['diez'], lower(trim(efectivos_desplegados))), '10',             in(['doce'], lower(trim(efectivos_desplegados))), '12',             in(['trece'], lower(trim(efectivos_desplegados))), '13',             in(['catorce'], lower(trim(efectivos_desplegados))), '14',             in(['quince'], lower(trim(efectivos_desplegados))), '15',             in(['dieciséis', 'dieciseis'], lower(trim(efectivos_desplegados))), '16',             in(['diecisiete'], lower(trim(efectivos_desplegados))), '17',             in(['dieciocho'], lower(trim(efectivos_desplegados))), '18',             in(['veinte'], lower(trim(efectivos_desplegados))), '20',             in(['veinticinco'], lower(trim(efectivos_desplegados))), '25',             in(['treinta'], lower(trim(efectivos_desplegados))), '30',             in(['cincuenta'], lower(trim(efectivos_desplegados))), '50',             in(['ochenta'], lower(trim(efectivos_desplegados))), '80',             in(['cien'], lower(trim(efectivos_desplegados))), '100',             in(['ciento cincuenta'], lower(trim(efectivos_desplegados))), '150',             in(['doscientos'], lower(trim(efectivos_desplegados))), '200',             in(['trescientos'], lower(trim(efectivos_desplegados))), '300',             in(['cuatrocientos'], lower(trim(efectivos_desplegados))), '400',             in(['quinientos'], lower(trim(efectivos_desplegados))), '500',                          true(),              toString(                 round(                     toFloat(                         regexReplace(                             regexReplace(                                 replace(lower(trim(efectivos_desplegados)), ',', '.'),                                 `(?i)(aprox\\.?|efectivos|vehículos|vehiculo|días|día|dias|dia|[\\(\\)\\~\\+])`, ''                             ),                             `.*?([0-9]+(\\.[0-9]+)?).*`, `$1`                         )                     ),                     0,                     5                 )             )         )     ) ),",
+						"          vehiculos_utilizados = iif(     isNull(vehiculos_utilizados) || in(['null', 'NULL', 'n/a', '---', '', 'n/d'], trim(vehiculos_utilizados)),     toInteger(0),          toInteger(         case(             in(['cero'], lower(trim(vehiculos_utilizados))), '0',             in(['uno'], lower(trim(vehiculos_utilizados))), '1',             in(['cuatro'], lower(trim(vehiculos_utilizados))), '4',             in(['cinco'], lower(trim(vehiculos_utilizados))), '5',             in(['seis'], lower(trim(vehiculos_utilizados))), '6',             in(['siete'], lower(trim(vehiculos_utilizados))), '7',             in(['ocho'], lower(trim(vehiculos_utilizados))), '8',             in(['nueve'], lower(trim(vehiculos_utilizados))), '9',             in(['diez'], lower(trim(vehiculos_utilizados))), '10',             in(['doce'], lower(trim(vehiculos_utilizados))), '12',             in(['trece'], lower(trim(vehiculos_utilizados))), '13',             in(['catorce'], lower(trim(vehiculos_utilizados))), '14',             in(['quince'], lower(trim(vehiculos_utilizados))), '15',             in(['dieciséis', 'dieciseis'], lower(trim(vehiculos_utilizados))), '16',             in(['diecisiete'], lower(trim(vehiculos_utilizados))), '17',             in(['dieciocho'], lower(trim(vehiculos_utilizados))), '18',             in(['veinte'], lower(trim(vehiculos_utilizados))), '20',             in(['veinticinco'], lower(trim(vehiculos_utilizados))), '25',             in(['treinta'], lower(trim(vehiculos_utilizados))), '30',             in(['cincuenta'], lower(trim(vehiculos_utilizados))), '50',             in(['ochenta'], lower(trim(vehiculos_utilizados))), '80',                          true(),              toString(                 round(                     toFloat(                         regexReplace(                             regexReplace(                                 replace(lower(trim(vehiculos_utilizados)), ',', '.'),                                 `(?i)(aprox\\.?|efectivos|vehículos|vehiculo|días|día|dias|dia|[\\(\\)\\~\\+])`, ''                             ),                             `.*?([0-9]+(\\.[0-9]+)?).*`, `$1`                         )                     ),                     0,                     5                 )             )         )     ) ),",
+						"          duracion_dias = iif(     isNull(duracion_dias) || in(['null', 'NULL', 'n/a', '---', '', 'n/d'], trim(duracion_dias)),     toInteger(0),          toInteger(         case(             in(['cero'], lower(trim(duracion_dias))), '0',             in(['uno'], lower(trim(duracion_dias))), '1',             in(['cuatro'], lower(trim(duracion_dias))), '4',             in(['cinco'], lower(trim(duracion_dias))), '5',             in(['seis'], lower(trim(duracion_dias))), '6',             in(['siete'], lower(trim(duracion_dias))), '7',             in(['ocho'], lower(trim(duracion_dias))), '8',             in(['nueve'], lower(trim(duracion_dias))), '9',             in(['diez'], lower(trim(duracion_dias))), '10',             in(['doce'], lower(trim(duracion_dias))), '12',             in(['trece'], lower(trim(duracion_dias))), '13',             in(['catorce'], lower(trim(duracion_dias))), '14',             in(['quince'], lower(trim(duracion_dias))), '15',             in(['dieciséis', 'dieciseis'], lower(trim(duracion_dias))), '16',             in(['diecisiete'], lower(trim(duracion_dias))), '17',             in(['dieciocho'], lower(trim(duracion_dias))), '18',             in(['veinte'], lower(trim(duracion_dias))), '20',             in(['veinticinco'], lower(trim(duracion_dias))), '25',             in(['treinta'], lower(trim(duracion_dias))), '30',             in(['cincuenta'], lower(trim(duracion_dias))), '50',             in(['ochenta'], lower(trim(duracion_dias))), '80',                          true(),              toString(                 round(                     toFloat(                         regexReplace(                             regexReplace(                                 replace(lower(trim(duracion_dias)), ',', '.'),                                 `(?i)(aprox\\.?|efectivos|vehículos|vehiculo|días|día|dias|dia|[\\(\\)\\~\\+])`, ''                             ),                             `.*?([0-9]+(\\.[0-9]+)?).*`, `$1`                         )                     ),                     0,                     5                 )             )         )     ) )) ~> derivedColumn2",
+						"derivedColumn2 derive(detenidos = iif(     isNull(detenidos) || in(['null', 'NULL', 'n/a', '---', '', '-', 'n/d', 'sin detenidos', 'ninguno'], trim(lower(detenidos))),     toInteger(0),          toInteger(         case(             in(['cero'], lower(trim(detenidos))), '0',             in(['uno'], lower(trim(detenidos))), '1',             in(['dos'], lower(trim(detenidos))), '2',             in(['tres'], lower(trim(detenidos))), '3',             in(['cuatro'], lower(trim(detenidos))), '4',             in(['cinco'], lower(trim(detenidos))), '5',             in(['seis'], lower(trim(detenidos))), '6',             in(['siete'], lower(trim(detenidos))), '7',             in(['ocho'], lower(trim(detenidos))), '8',             in(['nueve'], lower(trim(detenidos))), '9',             in(['diez'], lower(trim(detenidos))), '10',             in(['quince'], lower(trim(detenidos))), '15',             in(['veinte'], lower(trim(detenidos))), '20',                          true(),              toString(                 round(                     toFloat(                         regexReplace(                             regexReplace(                                 replace(lower(trim(detenidos)), ',', '.'),                                 `(?i)(aprox\\.?|personas|persona|pers\\.?|detenidos|detenido|det\\.?|[\\(\\)\\~\\+])`, ''                             ),                             `.*?([0-9]+(\\.[0-9]+)?).*`, `$1`                         )                     ),                     0,                     5                 )             )         )     ) ),",
+						"          area_km2 = iif(     isNull(area_km2) || in(['null', 'NULL', 'n/a', '---', '', '-', 'n/d', 'ninguno'], trim(lower(area_km2))),     toDecimal(0.00, 18, 2),          toDecimal(         case(             in(['cero'], lower(trim(area_km2))), '0.00',                          true(),              toString(                 toFloat(                     regexReplace(                         regexReplace(                             /* 1. Unifica comas decimales latinas en puntos */                             replace(lower(trim(area_km2)), ',', '.'),                             /* 2. Remueve texto de la unidad métrica y símbolos especiales */                             `(?i)(aprox\\.?|km2|km²|[\\(\\)\\~\\+])`, ''                         ),                         /* 3. Aísla el bloque numérico con su punto decimal intacto */                         `.*?([0-9]+(\\.[0-9]+)?).*`, `$1`                     )                 )             )         ),         18,         2     ) ),",
+						"          incidentes = iif(     isNull(incidentes) || in(['null', 'NULL', 'n/a', '---', '', '-', 'n/d','s/d', 'sin incidentes', 'ninguno'], trim(lower(incidentes))),     toInteger(0),          toInteger(         case(             in(['cero'], lower(trim(incidentes))), '0',             in(['uno'], lower(trim(incidentes))), '1',             in(['dos'], lower(trim(incidentes))), '2',             in(['tres'], lower(trim(incidentes))), '3',             in(['cuatro'], lower(trim(incidentes))), '4',             in(['cinco'], lower(trim(incidentes))), '5',             in(['seis'], lower(trim(incidentes))), '6',             in(['siete'], lower(trim(incidentes))), '7',             in(['ocho'], lower(trim(incidentes))), '8',             in(['nueve'], lower(trim(incidentes))), '9',             in(['diez'], lower(trim(incidentes))), '10',                          true(),              toString(                 round(                     toFloat(                         regexReplace(                             regexReplace(                                 replace(lower(trim(incidentes)), ',', '.'),                                 `(?i)(aprox\\.?|incidentes|incidente|inc\\.?|[\\(\\)\\~\\+])`, ''                             ),                             `.*?([0-9]+(\\.[0-9]+)?).*`, `$1`                         )                     ),                     0,                     5                 )             )         )     ) ),",
+						"          resultado = case(\r",
+						"    /* 1. CATEGORÍA: ÉXITO / CUMPLIDO */\r",
+						"    in([\r",
+						"        'exitoso', 'exitosa', 'sí, exitosa', 'si, exitosa', 'éxito', 'exito',\r",
+						"        'logrado', 'objetivo cumplido', 'completada', 'satisfactorio',\r",
+						"        'favorable', 'positivo', 'resultado positivo', 'bueno', 'muy bueno',\r",
+						"        'aceptable'\r",
+						"    ], lower(trim(resultado))), 'Éxito / Cumplido',\r",
+						"\r",
+						"    /* 2. CATEGORÍA: PARCIAL / EN CURSO */\r",
+						"    in([\r",
+						"        'parcial', 'parcialmente logrado', 'parcialmente exitosa', \r",
+						"        'parcialmente exitoso', 'en proceso', 'en curso', 'operación concluida', \r",
+						"        'concluida', 'finalizada', 'regular'\r",
+						"    ], lower(trim(resultado))), 'Parcial / En Curso',\r",
+						"\r",
+						"    /* 3. CATEGORÍA: FALLIDA / NEGATIVO */\r",
+						"    in([\r",
+						"        'fallida', 'negativo', 'sin éxito', 'sin exito', 'incompleta', \r",
+						"        'inconclusa', 'sin resultados', 'sin resultados concretos',\r",
+						"        'no logrado'\r",
+						"    ], lower(trim(resultado))), 'Fallida / Negativo',\r",
+						"\r",
+						"    /* 4. CATEGORÍA: PENDIENTE / POR EVALUAR */\r",
+						"    in([\r",
+						"        'por evaluar', 'pendiente de evaluación', 'pendiente de evaluacion'\r",
+						"    ], lower(trim(resultado))), 'Pendiente / Por Evaluar',\r",
+						"\r",
+						"    /* 5. CATEGORÍA: SIN DATA (Valores nulos, vacíos o basura) */\r",
+						"    isNull(resultado) || trim(resultado) == '' || \r",
+						"    in([\r",
+						"        'null', 'n/a', 's/n', 's/d', 'n/d', 'sin dato', '-', 'estado',\r",
+						"        'no reportado'\r",
+						"    ], lower(trim(resultado))), 'Sin Dato',\r",
+						"\r",
+						"    /* CASO POR DEFECTO: Si aparece un término nuevo no mapeado, lo deja en mayúsculas */\r",
+						"    upper(trim(resultado))\r",
+						"),",
+						"          costo_operacion = iif(     isNull(costo_operacion) || in(['null', 'NULL', 'n/a', '---', '', 'sin dato'], trim(lower(costo_operacion))),     toDecimal(0.00, 18, 2),          toDecimal(         iif(             /* REGLA 1: Detectar si el monto viene originalmente en DÓLARES (USD o $us) */             rlike(lower(trim(costo_operacion)), `(?i)(usd|\\$us)`),                          /* Si es Dólar, extrae el número, unifica decimales a punto y lo multiplica por el tipo de cambio 6.96 */             toString(                 toFloat(                     regexReplace(                         replace(                             regexReplace(lower(trim(costo_operacion)), `(?i)(usd|\\$us|[\\(\\)\\~\\+])`, ''),                             ',', '.'                         ),                         `\\.([0-9]{3})`, `$1`                     )                 ) * 6.96             ),                          /* REGLA 2: Si viene en BOLIVIANOS (Bs, BS, bolivianos o número puro) */             iif(                 /* Caso A: Si es un número entero puro sin puntos ni comas (Ej: 110084 o 100745) */                 rlike(trim(regexReplace(regexReplace(trim(costo_operacion), `^(?i)[b\\s\\.s-]*`, ''), `(?i)(bolivianos|[b\\s\\.s-])*$`, '')), `^\\d+$`),                 /* Le inyectamos matemáticamente el .00 al final */                 trim(regexReplace(regexReplace(trim(costo_operacion), `^(?i)[b\\s\\.s-]*`, ''), `(?i)(bolivianos|[b\\s\\.s-])*$`, '')) + '.00',                                  /* Caso B: Para números con formato mixto de puntos o comas (Ej: 11,316.21 o 57.378,57) */                 regexReplace(                     /* Volvemos todas las comas en puntos */                     replace(trim(regexReplace(regexReplace(trim(costo_operacion), `^(?i)[b\\s\\.s-]*`, ''), `(?i)(bolivianos|[b\\s\\.s-])*$`, '')), ',', '.'),                     /* Buscamos el punto de miles (seguido de 3 dígitos) y lo extirpamos */                     `\\.([0-9]{3})`,                     `$1`                 )             )         ),         18,         2     ) ),",
+						"          observaciones = iif(     isNull(observaciones) ||      in(['null', 'n/a', 's/n', '---', '-', 'sin dato', ''], trim(lower(observaciones))),     'Sin novedades',          /* Formato Tipo Oración: Primera letra Mayúscula, el resto minúscula */     upper(left(regexReplace(trim(observaciones), `\\s+`, ' '), 1)) +      lower(substring(regexReplace(trim(observaciones), `\\s+`, ' '), 2, length(regexReplace(trim(observaciones), `\\s+`, ' ')))) ),",
+						"          nombre_operacion = iif(     isNull(nombre_operacion) || in(['null', 'n/a', '---', '-', 'sin dato', ''], trim(lower(nombre_operacion))),     'Sin nombre',          /* Etapa 3: Aplicar formato Tipo Oración al texto final sin comillas */     upper(left(         regexReplace(             /* Etapa 2: Remover comillas simples (') y comillas dobles (\") */             regexReplace(                 /* Etapa 1: Quitar prefijos 'Op.', 'Op ', 'Operacion ' u 'Operación ' completos con sus espacios */                 regexReplace(trim(nombre_operacion), `^(?i)(op\\.\\s*|op\\s+|operación\\s+|operacion\\s+)`, ''),                 `['\"]`, ''             ),             `\\s+`, ' '         ), 1     )) +      lower(substring(         regexReplace(             regexReplace(                 regexReplace(trim(nombre_operacion), `^(?i)(op\\.\\s*|op\\s+|operación\\s+|operacion\\s+)`, ''),                 `['\"]`, ''             ),             `\\s+`, ' '         ), 2, length(regexReplace(regexReplace(regexReplace(trim(nombre_operacion), `^(?i)(op\\.\\s*|op\\s+|operación\\s+|operacion\\s+)`, ''), `['\"]`, ''), `\\s+`, ' '))     )) )) ~> derivedColumn3",
+						"derivedColumn3 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          id_operacion as integer,",
+						"          id_tipo as integer,",
+						"          id_unidad_resp as integer,",
+						"          id_zona as integer,",
+						"          nombre_operacion as string,",
+						"          fecha_inicio as date,",
+						"          fecha_fin as date,",
+						"          efectivos_desplegados as integer,",
+						"          vehiculos_utilizados as integer,",
+						"          duracion_dias as integer,",
+						"          costo_operacion as decimal(18,2),",
+						"          resultado as string,",
+						"          detenidos as integer,",
+						"          area_km2 as decimal(18,2),",
+						"          incidentes as integer,",
+						"          observaciones as string",
+						"     ),",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError',",
+						"     mapColumn(",
+						"          id_operacion,",
+						"          id_tipo,",
+						"          id_unidad_resp,",
+						"          id_zona,",
+						"          nombre_operacion,",
+						"          fecha_inicio,",
+						"          fecha_fin,",
+						"          efectivos_desplegados,",
+						"          vehiculos_utilizados,",
+						"          duracion_dias,",
+						"          costo_operacion,",
+						"          resultado,",
+						"          detenidos,",
+						"          area_km2,",
+						"          incidentes,",
+						"          observaciones",
+						"     )) ~> sink1"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/df_silver_rangos')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"folder": {
+					"name": "silver"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "ds_bronze_rangos",
+								"type": "DatasetReference"
+							},
+							"name": "source1"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "ds_silver_tbl_rangos",
+								"type": "DatasetReference"
+							},
+							"name": "sink1"
+						}
+					],
+					"transformations": [
+						{
+							"name": "derivedColumn1"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          id_rango as integer,",
+						"          nombre as string,",
+						"          categoria as string,",
+						"          nivel_jerarquico as integer,",
+						"          abreviatura as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     query: 'SELECT \\n    id_rango,\\n\\n    TRIM(nombre) AS nombre,\\n    TRIM(categoria) AS categoria,\\n\\n    nivel_jerarquico,\\n\\n    TRIM(abreviatura) AS abreviatura\\n\\nFROM bronze.tbl_rangos',",
+						"     format: 'query') ~> source1",
+						"source1 derive(nombre = initCap(trim(nombre)),",
+						"          categoria = initCap(trim(categoria)),",
+						"          nivel_jerarquico = toInteger(nivel_jerarquico),",
+						"          abreviatura = initCap(trim(abreviatura))) ~> derivedColumn1",
+						"derivedColumn1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          id_rango as integer,",
+						"          nombre as string,",
+						"          categoria as string,",
+						"          nivel_jerarquico as integer,",
+						"          abreviatura as string",
+						"     ),",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError',",
+						"     mapColumn(",
+						"          id_rango,",
+						"          nombre,",
+						"          categoria,",
+						"          nivel_jerarquico,",
+						"          abreviatura",
+						"     )) ~> sink1"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/df_silver_tipos_movimientos')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"folder": {
+					"name": "silver"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "ds_bronze_tipos_movimiento",
+								"type": "DatasetReference"
+							},
+							"name": "source1"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "ds_silver_tbl_tipos_movimiento",
+								"type": "DatasetReference"
+							},
+							"name": "sink1"
+						}
+					],
+					"transformations": [
+						{
+							"name": "derivedColumn1"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          id_tipo as integer,",
+						"          nombre as string,",
+						"          descripcion as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     query: 'SELECT \\n    id_tipo,\\n    TRIM(nombre) AS nombre,\\n    TRIM(descripcion) AS descripcion\\nFROM bronze.tbl_tipos_movimiento\\nWHERE id_tipo IS NOT NULL \\n  AND TRIM(nombre) != \\'\\' \\n  AND UPPER(TRIM(nombre)) != \\'NULL\\'',",
+						"     format: 'query') ~> source1",
+						"source1 derive(nombre = initCap(trim(nombre)),",
+						"          id_tipo = toInteger(id_tipo),",
+						"          descripcion = upper(left(regexReplace(trim(descripcion), `\\s+`, ' '), 1)) +  lower(substring(regexReplace(trim(descripcion), `\\s+`, ' '), 2, length(regexReplace(trim(descripcion), `\\s+`, ' '))))) ~> derivedColumn1",
+						"derivedColumn1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          id_tipo as integer,",
+						"          nombre as string,",
+						"          descripcion as string",
+						"     ),",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError',",
+						"     mapColumn(",
+						"          id_tipo,",
+						"          nombre,",
+						"          descripcion",
+						"     )) ~> sink1"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/df_silver_tipos_operacion')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"folder": {
+					"name": "silver"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "ds_bronze_tipos_operacion",
+								"type": "DatasetReference"
+							},
+							"name": "source1"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "ds_silver_tbl_tipos_operacion",
+								"type": "DatasetReference"
+							},
+							"name": "sink1"
+						}
+					],
+					"transformations": [
+						{
+							"name": "derivedColumn1"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          id_tipo as integer,",
+						"          nombre as string,",
+						"          categoria as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     query: 'SELECT \\n    id_tipo,\\n    TRIM(nombre) AS nombre,\\n    TRIM(categoria) AS categoria\\nFROM bronze.tbl_tipos_operacion\\nWHERE id_tipo IS NOT NULL \\n  AND TRIM(nombre) != \\'\\' \\n  AND UPPER(TRIM(nombre)) != \\'NULL\\'',",
+						"     format: 'query') ~> source1",
+						"source1 derive(id_tipo = toInteger(id_tipo),",
+						"          nombre = initCap(trim(regexReplace(trim(nombre), `^(?i)(defensa civil\\s*-\\s*)`, ''))),",
+						"          categoria = initCap(replace(trim(categoria), '_', ' '))) ~> derivedColumn1",
+						"derivedColumn1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          id_tipo as integer,",
+						"          nombre as string,",
+						"          categoria as string",
+						"     ),",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError',",
+						"     mapColumn(",
+						"          id_tipo,",
+						"          nombre,",
+						"          categoria",
+						"     )) ~> sink1"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/df_silver_unidades')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"folder": {
+					"name": "silver"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "ds_bronze_unidades",
+								"type": "DatasetReference"
+							},
+							"name": "source1"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "ds_silver_tbl_unidades",
+								"type": "DatasetReference"
+							},
+							"name": "sink1"
+						}
+					],
+					"transformations": [
+						{
+							"name": "derivedColumn1"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          id_unidad as integer,",
+						"          id_brigada as integer,",
+						"          nombre as string,",
+						"          codigo as string,",
+						"          ciudad as string,",
+						"          departamento as string,",
+						"          tipo_cuartel as string",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     query: 'SELECT \\n    id_unidad,\\n    id_brigada,\\n    TRIM(nombre) AS nombre,\\n    TRIM(codigo) AS codigo,\\n    TRIM(ciudad) AS ciudad,\\n    TRIM(departamento) AS departamento,\\n    TRIM(tipo_cuartel) AS tipo_cuartel\\nFROM bronze.tbl_unidades\\nWHERE id_unidad IS NOT NULL \\n  AND id_brigada IS NOT NULL\\n  AND TRIM(nombre) != \\'\\' \\n  AND UPPER(TRIM(nombre)) != \\'NULL\\'',",
+						"     format: 'query') ~> source1",
+						"source1 derive(id_unidad = toInteger(id_unidad),",
+						"          id_brigada = toInteger(id_brigada),",
+						"          nombre = initCap(trim(nombre)),",
+						"          codigo = upper(trim(codigo)),",
+						"          ciudad = initCap(trim(ciudad)),",
+						"          departamento = initCap(trim(departamento)),",
+						"          tipo_cuartel = initCap(trim(tipo_cuartel))) ~> derivedColumn1",
+						"derivedColumn1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          id_unidad as integer,",
+						"          id_brigada as integer,",
+						"          nombre as string,",
+						"          codigo as string,",
+						"          ciudad as string,",
+						"          departamento as string,",
+						"          tipo_cuartel as string",
+						"     ),",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError',",
+						"     mapColumn(",
+						"          id_unidad,",
+						"          id_brigada,",
+						"          nombre,",
+						"          codigo,",
+						"          ciudad,",
+						"          departamento,",
+						"          tipo_cuartel",
+						"     )) ~> sink1"
+					]
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/df_silver_zonas')]",
+			"type": "Microsoft.DataFactory/factories/dataflows",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"folder": {
+					"name": "silver"
+				},
+				"type": "MappingDataFlow",
+				"typeProperties": {
+					"sources": [
+						{
+							"dataset": {
+								"referenceName": "ds_bronze_zonas",
+								"type": "DatasetReference"
+							},
+							"name": "source1"
+						}
+					],
+					"sinks": [
+						{
+							"dataset": {
+								"referenceName": "ds_silver_tbl_zonas",
+								"type": "DatasetReference"
+							},
+							"name": "sink1"
+						}
+					],
+					"transformations": [
+						{
+							"name": "derivedColumn1"
+						}
+					],
+					"scriptLines": [
+						"source(output(",
+						"          id_zona as integer,",
+						"          nombre as string,",
+						"          departamento as string,",
+						"          frontera_con as string,",
+						"          tipo_terreno as string,",
+						"          altitud_msnm as integer,",
+						"          nivel_riesgo as string,",
+						"          acceso_carretero as boolean",
+						"     ),",
+						"     allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     isolationLevel: 'READ_UNCOMMITTED',",
+						"     query: 'SELECT \\n    id_zona,\\n    TRIM(nombre) AS nombre,\\n    TRIM(departamento) AS departamento,\\n    TRIM(frontera_con) AS frontera_con,\\n    TRIM(tipo_terreno) AS tipo_terreno,\\n    altitud_msnm,\\n    TRIM(nivel_riesgo) AS nivel_riesgo,\\n    acceso_carretero\\nFROM bronze.tbl_zonas\\nWHERE id_zona IS NOT NULL \\n  AND TRIM(nombre) != \\'\\' \\n  AND UPPER(TRIM(nombre)) != \\'NULL\\'',",
+						"     format: 'query') ~> source1",
+						"source1 derive(id_zona = toInteger(id_zona),",
+						"          nombre = initCap(trim(nombre)),",
+						"          departamento = initCap(trim(departamento)),",
+						"          frontera_con = iif(     isNull(frontera_con) || in(['null', 'n/a', '---', '', '-'], lower(trim(frontera_con))),     'Sin Frontera',     initCap(trim(frontera_con)) ),",
+						"          tipo_terreno = initCap(trim(tipo_terreno)),",
+						"          altitud_msnm = toInteger(altitud_msnm),",
+						"          nivel_riesgo = case(     lower(trim(nivel_riesgo)) == 'critico', 'Crítico',     initCap(trim(nivel_riesgo)) )) ~> derivedColumn1",
+						"derivedColumn1 sink(allowSchemaDrift: true,",
+						"     validateSchema: false,",
+						"     input(",
+						"          id_zona as integer,",
+						"          nombre as string,",
+						"          departamento as string,",
+						"          frontera_con as string,",
+						"          tipo_terreno as string,",
+						"          altitud_msnm as integer,",
+						"          nivel_riesgo as string,",
+						"          acceso_carretero as boolean",
+						"     ),",
+						"     deletable:false,",
+						"     insertable:true,",
+						"     updateable:false,",
+						"     upsertable:false,",
+						"     format: 'table',",
+						"     skipDuplicateMapInputs: true,",
+						"     skipDuplicateMapOutputs: true,",
+						"     errorHandlingOption: 'stopOnFirstError',",
+						"     mapColumn(",
+						"          id_zona,",
+						"          nombre,",
+						"          departamento,",
+						"          frontera_con,",
+						"          tipo_terreno,",
+						"          altitud_msnm,",
+						"          nivel_riesgo,",
+						"          acceso_carretero",
+						"     )) ~> sink1"
+					]
+				}
+			},
+			"dependsOn": []
+		}
+	]
+}
