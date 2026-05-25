@@ -1,0 +1,15 @@
+{
+	"name": "adf-dw-ffaa2",
+	"properties": {
+		"trustModeClaimForMi": {
+			"value": "Enabled",
+			"editable": true
+		}
+	},
+	"location": "centralus",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "b62d6098-459a-4d92-914b-9af9ea0d70ee",
+		"tenantId": "cc28633f-12b8-46cb-bc15-951dae239b4d"
+	}
+}
