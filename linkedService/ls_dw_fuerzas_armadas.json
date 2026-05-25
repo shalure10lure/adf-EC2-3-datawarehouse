@@ -5,13 +5,13 @@
 		"annotations": [],
 		"type": "AzureSqlDatabase",
 		"typeProperties": {
-			"server": "sql-dw-ffaa.database.windows.net",
-			"database": "dw_fuerzas_armadas",
+			"server": "sql-dw-ffaa2.database.windows.net",
+			"database": "dw_fuerzas_armadas2",
 			"encrypt": "mandatory",
 			"trustServerCertificate": false,
 			"authenticationType": "SQL",
 			"userName": "adminffaa",
-			"encryptedCredential": "ew0KICAiVmVyc2lvbiI6ICIyMDE3LTExLTMwIiwNCiAgIlByb3RlY3Rpb25Nb2RlIjogIktleSIsDQogICJTZWNyZXRDb250ZW50VHlwZSI6ICJQbGFpbnRleHQiLA0KICAiQ3JlZGVudGlhbElkIjogIkRBVEFGQUNUT1JZQERFMDgxQzc3LTBBOEUtNDVGRi1CNTNELUQ5RTZDRkQ1QzRCN180YzI1OTJlMy03ZmM4LTRjZGYtYTVjZC05YjJhZDQ5NmQ3ZjQiDQp9"
+			"encryptedCredential": "ew0KICAiVmVyc2lvbiI6ICIyMDE3LTExLTMwIiwNCiAgIlByb3RlY3Rpb25Nb2RlIjogIktleSIsDQogICJTZWNyZXRDb250ZW50VHlwZSI6ICJQbGFpbnRleHQiLA0KICAiQ3JlZGVudGlhbElkIjogIkRBVEFGQUNUT1JZQEM1QTFFRDc2LUVCM0EtNERFOS1CNkJGLTBDRjgwMkNDOUI0OF8xZGM0MTdkYS0zNTNkLTQ4MzItOWJlNS02MzllOTY4OWM5YTQiDQp9"
 		}
 	}
 }
